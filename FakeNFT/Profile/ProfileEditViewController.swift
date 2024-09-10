@@ -17,6 +17,9 @@ final class ProfileEditViewController: UIViewController {
     private lazy var profileAvatarPhotoButton = UIButton()
     private lazy var profileAvatarPhotoLabel = UILabel()
     private var profileAvatarPhotoButtonBottomConstraint: [NSLayoutConstraint] = []
+    private lazy var descriptionTitleLabel = UILabel()
+    private lazy var userDescriptionView = UITextView()
+    private let descriptionViewPlaceholder = "Расскажите о себе"
     
     private func configProfileEditViewController() {
         
@@ -97,6 +100,48 @@ final class ProfileEditViewController: UIViewController {
             profileAvatarPhotoLabel.bottomAnchor.constraint(equalTo: profileAvatarPhotoButton.bottomAnchor),
             profileAvatarPhotoLabel.leadingAnchor.constraint(equalTo: profileAvatarPhotoButton.leadingAnchor),
             profileAvatarPhotoLabel.trailingAnchor.constraint(equalTo: profileAvatarPhotoButton.trailingAnchor)
+        ])
+        
+        //Настройка отображения описания пользователя на экране редактирования
+        
+        descriptionTitleLabel.textColor = UIColor(named: "YPBlack")
+        userDescriptionView.backgroundColor = UIColor(named: "YPMediumLightGray")
+        userDescriptionView.delegate = self
+        userDescriptionView.isScrollEnabled = false
+        
+        descriptionTitleLabel.text = "Описание"
+        descriptionTitleLabel.font = .headline3
+        
+        userDescriptionView.textContainerInset = UIEdgeInsets(top: 11, left: 16, bottom: -11, right: -16)
+        userDescriptionView.layer.masksToBounds = true
+        userDescriptionView.layer.cornerRadius = 12
+        userDescriptionView.textAlignment = .left
+        userDescriptionView.textContainer.maximumNumberOfLines = 5
+        
+        let text = "Поиск описания"
+        
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing =  3
+        let attributes = [NSAttributedString.Key.paragraphStyle : style,
+                          .foregroundColor: UIColor(named: "YPBlack"),
+                          .font: UIFont.bodyRegular
+        ]
+        
+        userDescriptionView.attributedText = NSAttributedString(string: text, attributes: attributes as [NSAttributedString.Key : Any])
+        
+        view.addSubview(userDescriptionView)
+        view.addSubview(descriptionTitleLabel)
+        descriptionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        userDescriptionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            descriptionTitleLabel.topAnchor.constraint(equalTo: profileNameTextField.bottomAnchor, constant: 24),
+            descriptionTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            userDescriptionView.heightAnchor.constraint(equalToConstant: 132),
+            userDescriptionView.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 8),
+            userDescriptionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            userDescriptionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }
 }
