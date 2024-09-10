@@ -16,11 +16,18 @@ final class ProfileViewController: UIViewController {
     private let myNftCellIdentifier = "tableCellIdentifier"
     private let myNftTableViewCells = ["Мои NFT"]
     private lazy var profileEditButton = UIButton(type: .system)
+    private var profile: Profile?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
         configProfileViewController()
+    }
+    
+    @objc func profileEditButtonTapped() {
+        guard let profile else { return }
+        let viewController = ProfileEditViewController(profile: profile, delegate: self)
+        present(viewController, animated: true)
     }
     
     private func configProfileViewController() {
