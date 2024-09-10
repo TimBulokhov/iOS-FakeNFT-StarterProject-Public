@@ -14,12 +14,18 @@ final class ProfileEditViewController: UIViewController {
     private lazy var profileNameLabel = UILabel()
     private lazy var profileNameTextField = UITextField()
     private let profileClearNameButton = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
+    
     private lazy var profileAvatarPhotoButton = UIButton()
     private lazy var profileAvatarPhotoLabel = UILabel()
     private var profileAvatarPhotoButtonBottomConstraint: [NSLayoutConstraint] = []
+    
     private lazy var descriptionTitleLabel = UILabel()
     private lazy var userDescriptionView = UITextView()
     private let descriptionViewPlaceholder = "Расскажите о себе"
+    
+    private lazy var linkTitleLabel = UILabel()
+    private lazy var linkTextField = UITextField()
+    private let clearLinkButton = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
     
     private func configProfileEditViewController() {
         
@@ -142,6 +148,46 @@ final class ProfileEditViewController: UIViewController {
             userDescriptionView.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 8),
             userDescriptionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             userDescriptionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+        
+        //Настройка отображения сайта и ссылки пользователя на экране редактирования
+        
+        linkTitleLabel.textColor = UIColor(named: "YPBlack")
+        linkTextField.backgroundColor = UIColor(named: "YPMediumLightGray")
+        clearLinkButton.backgroundColor = UIColor(named: "YPMediumLightGray")
+        
+        linkTitleLabel.text = "Сайт"
+        linkTitleLabel.font = UIFont.headline3
+        
+        linkTextField.placeholder = "Введите ссылку"
+        linkTextField.text = "Поиск ссылки сайта"
+        linkTextField.delegate = self
+        linkTextField.layer.cornerRadius = 16
+        linkTextField.layer.masksToBounds = true
+        linkTextField.leftViewMode = .always
+        
+        linkTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        linkTextField.rightView = clearLinkButton
+        linkTextField.rightViewMode = .whileEditing
+        
+        clearLinkButton.contentHorizontalAlignment = .leading
+        clearLinkButton.setImage(UIImage(named: "x.mark.circle"), for: .normal)
+        
+        linkTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        linkTextField.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(linkTextField)
+        view.addSubview(linkTitleLabel)
+        
+        NSLayoutConstraint.activate([
+            linkTitleLabel.topAnchor.constraint(equalTo: userDescriptionView.bottomAnchor, constant: 24),
+            linkTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            linkTextField.heightAnchor.constraint(equalToConstant: 44),
+            linkTextField.topAnchor.constraint(equalTo: linkTitleLabel.bottomAnchor, constant: 8),
+            linkTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            linkTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            clearLinkButton.widthAnchor.constraint(equalToConstant: clearLinkButton.frame.width + 12)
         ])
     }
 }
