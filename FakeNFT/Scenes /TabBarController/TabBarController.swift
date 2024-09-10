@@ -2,24 +2,42 @@ import UIKit
 
 final class TabBarController: UITabBarController {
 
-    var servicesAssembly: ServicesAssembly!
-
+    
+    private let profileTabBarItem = UITabBarItem(
+        title: "Профиль",
+        image: UIImage(named: "profileItem"),
+        selectedImage: nil)
+    
     private let catalogTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.catalog", comment: ""),
-        image: UIImage(systemName: "square.stack.3d.up.fill"),
-        tag: 0
-    )
-
+        title: "Каталог",
+        image: UIImage(named: "catalogItem"),
+        selectedImage: nil)
+    
+    private let cartTabBarItem = UITabBarItem(
+        title: "Корзина",
+        image: UIImage(named: "cartItem"),
+        selectedImage: nil)
+    
+    private let statisticTabBarItem = UITabBarItem(
+        title: "Статистика",
+        image: UIImage(named: "statisticItem"),
+        selectedImage: nil)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "YPWhite")
+        tabBar.backgroundColor = UIColor(named: "YPWhite")
+        tabBar.unselectedItemTintColor = UIColor(named: "YPBlack")
+        tabBar.tintColor = UIColor(named: "YPBlue")
+        addTabBarItems()
+    }
+    
+    private func addTabBarItems(){
+        
+        let profileViewController = ProfileViewController()
 
-        let catalogController = TestCatalogViewController(
-            servicesAssembly: servicesAssembly
-        )
-        catalogController.tabBarItem = catalogTabBarItem
-
-        viewControllers = [catalogController]
-
-        view.backgroundColor = .systemBackground
+        profileViewController.tabBarItem = profileTabBarItem
+        
+        self.viewControllers = [profileViewController]
     }
 }
