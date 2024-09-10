@@ -15,6 +15,7 @@ final class ProfileViewController: UIViewController {
     private lazy var myNftTableView = UITableView()
     private let myNftCellIdentifier = "tableCellIdentifier"
     private let myNftTableViewCells = ["Мои NFT"]
+    private lazy var profileEditButton = UIButton(type: .system)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,6 +103,22 @@ final class ProfileViewController: UIViewController {
             myNftTableView.bottomAnchor.constraint(equalTo: myNftTableView.topAnchor, constant: 162),
             myNftTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             myNftTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        //Настройка отображения кнопки редактирования профиля
+        
+        
+        profileEditButton.tintColor = UIColor(named: "YPBlack")
+        profileEditButton.setImage(UIImage(named: "editButtonImage"), for: .normal)
+        
+        profileEditButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(profileEditButton)
+        
+        NSLayoutConstraint.activate([
+            profileEditButton.widthAnchor.constraint(equalToConstant: 42),
+            profileEditButton.heightAnchor.constraint(equalToConstant: 42),
+            profileEditButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 46),
+            profileEditButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9)
         ])
     }
 }
