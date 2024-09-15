@@ -1,5 +1,5 @@
 //
-//  NftCartModel.swift
+//  NFT.swift
 //  FakeNFT
 //
 //  Created by Мария Шагина on 11.09.2024.
