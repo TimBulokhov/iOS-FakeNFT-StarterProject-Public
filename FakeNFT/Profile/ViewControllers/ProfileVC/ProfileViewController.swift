@@ -35,12 +35,24 @@ final class ProfileViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
-        configProfileViewController()
+        view.addSubview(profileAvatar)
+        view.addSubview(profileName)
+        view.addSubview(profileDescription)
+        view.addSubview(myNftTableView)
+        view.addSubview(profileEditButton)
+        view.addSubview(profileLinkButton)
+        configProfileAvatar()
+        configProfileName()
+        configProfileDescription()
+        configMyNftTableView()
+        configProfileEditButton()
+        configLinkButton()
+        fetchProfile()
     }
     
     @objc func profileEditButtonTapped() {
@@ -53,7 +65,7 @@ final class ProfileViewController: UIViewController {
         print("Link button tapped")
     }
     
-    private func configProfileViewController() {
+    private func configProfileAvatar() {
         
         //Настройка отображения изображения профиля
         
@@ -62,7 +74,7 @@ final class ProfileViewController: UIViewController {
         profileAvatar.layer.cornerRadius = 35
         profileAvatar.contentMode = .scaleAspectFill
         profileAvatar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileAvatar)
+        
         
         NSLayoutConstraint.activate([
             profileAvatar.widthAnchor.constraint(equalToConstant: 70),
@@ -70,23 +82,25 @@ final class ProfileViewController: UIViewController {
             profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
             profileAvatar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
-        
-        //Настройка отображения имени профиля
-        
+    }
+    //Настройка отображения имени профиля
+    private func configProfileName() {
         profileName.textColor = UIColor(named: "YPBlack")
         profileName.font = UIFont.headline3
         profileName.text = "Timofey Bulokhov"
         
         profileName.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileName)
+        
         
         NSLayoutConstraint.activate([
             profileName.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
             profileName.leadingAnchor.constraint(equalTo: profileAvatar.trailingAnchor, constant: 16),
             profileName.trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -16)
         ])
-        
-        //Настройка отображения описания профиля
+    }
+    //Настройка отображения описания профиля
+    
+    private func configProfileDescription() {
         
         profileDescription.backgroundColor = .clear
         profileDescription.isEditable = false
@@ -110,16 +124,17 @@ final class ProfileViewController: UIViewController {
         profileDescription.attributedText = NSAttributedString(string: text, attributes: attributes as [NSAttributedString.Key : Any])
         
         profileDescription.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileDescription)
+        
         
         NSLayoutConstraint.activate([
             profileDescription.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 20),
             profileDescription.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             profileDescription.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
-        
-        //Настройка отображения таблицы "Мои NFT" в профиле
-        
+    }
+    //Настройка отображения таблицы "Мои NFT" в профиле
+    
+    private func configMyNftTableView() {
         myNftTableView.backgroundColor = .clear
         myNftTableView.dataSource = self
         myNftTableView.delegate = self
@@ -127,22 +142,25 @@ final class ProfileViewController: UIViewController {
         myNftTableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1000)
         
         myNftTableView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(myNftTableView)
+        
         
         NSLayoutConstraint.activate([
+            myNftTableView.topAnchor.constraint(equalTo: profileLinkButton.bottomAnchor, constant: 44),
             myNftTableView.bottomAnchor.constraint(equalTo: myNftTableView.topAnchor, constant: 162),
             myNftTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             myNftTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        
-        //Настройка отображения кнопки редактирования профиля
-        
+    }
+    
+    //Настройка отображения кнопки редактирования профиля
+    
+    private func configProfileEditButton() {
         
         profileEditButton.tintColor = UIColor(named: "YPBlack")
         profileEditButton.setImage(UIImage(named: "editButtonImage"), for: .normal)
-        
+        profileEditButton.addTarget(self, action: #selector(profileEditButtonTapped), for: .touchUpInside)
         profileEditButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileEditButton)
+        
         
         NSLayoutConstraint.activate([
             profileEditButton.widthAnchor.constraint(equalToConstant: 42),
@@ -152,7 +170,8 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func configureLinkButton() {
+    
+    private func configLinkButton() {
         profileLinkButton.setTitleColor(UIColor(named: "YPBlue"), for: .normal)
         profileLinkButton.titleLabel?.font = UIFont.caption1
         profileLinkButton.contentHorizontalAlignment = .left
@@ -160,7 +179,7 @@ final class ProfileViewController: UIViewController {
         profileLinkButton.addTarget(self, action: #selector(profileLinkButtonTapped), for: .touchUpInside)
         
         profileLinkButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileLinkButton)
+       
         
         NSLayoutConstraint.activate([
             profileLinkButton.heightAnchor.constraint(equalToConstant: 20),
@@ -298,7 +317,7 @@ extension ProfileViewController: ProfileControllerDelegate {
                 title: "Ошибка обновления профиля",
                 message: message,
                 closeAlertTitle: "Закрыть",
-                completionTitle: "Вренутся") {
+                completionTitle: "Вернутся") {
                     self.backToRedact(profile: profile)
                 }
             
@@ -344,7 +363,7 @@ extension ProfileViewController: ProfileFactoryDelegate {
         
         if let profile = UpdateProfileService.profileResult {
             
-        showServiceErrorAlert(error) {
+            showServiceErrorAlert(error) {
                 self.updateProfile(profile)
             }
         } else if let profile = self.profile {

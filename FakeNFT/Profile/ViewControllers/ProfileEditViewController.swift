@@ -54,13 +54,12 @@ final class ProfileEditViewController: UIViewController {
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
-        
-        configProfileName()
         configProfileAvatar()
+        configProfileWarningLabel()
+        configProfileName()
         configProfileDescription()
         configProfileLink()
         configProfileCloseButton()
-        configProfileWarningLabel()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -145,7 +144,7 @@ final class ProfileEditViewController: UIViewController {
         profileNameTextField.backgroundColor = UIColor(named: "YPMediumLightGray")
         profileClearNameButton.backgroundColor = UIColor(named: "YPMediumLightGray")
         
-        profileNameLabel.text = "Timofey Bulokhov"
+        profileNameLabel.text = "Имя"
         profileNameLabel.font = UIFont.headline3
         
         profileNameTextField.placeholder = "Введите имя и фамилию"

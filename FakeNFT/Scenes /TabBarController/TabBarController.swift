@@ -1,9 +1,9 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    
-    private var servicesAssembly: ServicesAssembly
 
+    private var servicesAssembly: ServicesAssembly
+    
     private let profileTabBarItem = UITabBarItem(
         title: "Профиль",
         image: UIImage(named: "profileItem"),
