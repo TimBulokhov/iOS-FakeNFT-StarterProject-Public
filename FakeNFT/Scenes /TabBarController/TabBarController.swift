@@ -1,8 +1,9 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-
     
+    private var servicesAssembly: ServicesAssembly
+
     private let profileTabBarItem = UITabBarItem(
         title: "Профиль",
         image: UIImage(named: "profileItem"),
@@ -23,6 +24,15 @@ final class TabBarController: UITabBarController {
         image: UIImage(named: "statisticItem"),
         selectedImage: nil)
     
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
@@ -34,7 +44,7 @@ final class TabBarController: UITabBarController {
     
     private func addTabBarItems(){
         
-        let profileViewController = ProfileViewController()
+        let profileViewController = ProfileViewController(servicesAssembly: servicesAssembly)
 
         profileViewController.tabBarItem = profileTabBarItem
         

@@ -11,6 +11,17 @@ final class myNftTableCell: UITableViewCell {
     
     let myNftCellLabel = UILabel()
     
+    override init(style: UITableViewCell.CellStyle,
+                  reuseIdentifier: String?) {
+        
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        configureMyNftCell()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     //Настройка отображения ячейки в таблице "Мои NFT"
     
     private func configureMyNftCell(){
