@@ -2,7 +2,7 @@ import UIKit
 
 final class TabBarController: UITabBarController {
     
-    var servicesAssembly: ServicesAssembly!
+    var servicesAssembly: ServicesAssembly?
     
     private let catalogTabBarItem = UITabBarItem(title: NSLocalizedString("Tab.catalog", comment: ""), image: UIImage(systemName: "rectangle.stack.fill"), tag: 0)
     private let profileTabBarItem = UITabBarItem(title: "Профиль", image: UIImage(systemName: "person.crop.circle.fill"), tag: 0)
@@ -11,6 +11,9 @@ final class TabBarController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard let servicesAssembly = servicesAssembly else {
+            fatalError("servicesAssembly not injected")
+        }
         
         let catalogController = TestCatalogViewController(
             servicesAssembly: servicesAssembly

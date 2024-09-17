@@ -77,13 +77,16 @@ extension CartVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let
-        cell = tableView.dequeueReusableCell(withIdentifier: "NFTCell", for: indexPath) as! NFTTableViewCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier:
+     "NFTCell", for: indexPath) as? NFTTableViewCell else {
+            fatalError("Could not dequeue cell with identifier 'NFTCell'")
+        }
+
         let item = cartItems[indexPath.row]
         cell.configure(with: item)
         cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
         cell.selectionStyle = .none
-        
+
         return cell
     }
     
