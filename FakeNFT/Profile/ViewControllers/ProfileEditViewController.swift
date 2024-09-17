@@ -165,7 +165,7 @@ final class ProfileEditViewController: UIViewController {
         profileClearNameButton.setImage(UIImage(named: "x.mark.circle"), for: .normal)
         
         profileNameTextField.translatesAutoresizingMaskIntoConstraints = false
-        profileNameTextField.translatesAutoresizingMaskIntoConstraints = false
+        profileNameLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(profileNameTextField)
         view.addSubview(profileNameLabel)
         
@@ -206,19 +206,14 @@ final class ProfileEditViewController: UIViewController {
         view.addSubview(profileAvatarPhotoButton)
         profileAvatarPhotoButton.addSubview(profileAvatarPhotoLabel)
         
-        
-        let constraint = profileAvatarPhotoButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -602)
-        
-        profileAvatarPhotoButtonBottomConstraint.append(constraint)
-        profileAvatarPhotoButtonBottomConstraint.first?.isActive = true
-        
         NSLayoutConstraint.activate([
             profileAvatarPhotoButton.widthAnchor.constraint(equalToConstant: 70),
             profileAvatarPhotoButton.heightAnchor.constraint(equalToConstant: 70),
             profileAvatarPhotoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            profileAvatarPhotoButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
             
             profileAvatarPhotoLabel.topAnchor.constraint(equalTo: profileAvatarPhotoButton.topAnchor),
-            profileAvatarPhotoLabel.bottomAnchor.constraint(equalTo: profileAvatarPhotoButton.bottomAnchor),
+            profileAvatarPhotoLabel.bottomAnchor.constraint(equalTo: profileAvatarPhotoButton.topAnchor, constant: 70),
             profileAvatarPhotoLabel.leadingAnchor.constraint(equalTo: profileAvatarPhotoButton.leadingAnchor),
             profileAvatarPhotoLabel.trailingAnchor.constraint(equalTo: profileAvatarPhotoButton.trailingAnchor)
         ])
@@ -324,7 +319,7 @@ final class ProfileEditViewController: UIViewController {
         NSLayoutConstraint.activate([
             profileCloseButton.widthAnchor.constraint(equalToConstant: 42),
             profileCloseButton.heightAnchor.constraint(equalToConstant: 42),
-            profileCloseButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -694),
+            profileCloseButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -780),
             profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }

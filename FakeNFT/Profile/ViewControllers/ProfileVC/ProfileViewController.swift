@@ -79,7 +79,7 @@ final class ProfileViewController: UIViewController {
         NSLayoutConstraint.activate([
             profileAvatar.widthAnchor.constraint(equalToConstant: 70),
             profileAvatar.heightAnchor.constraint(equalToConstant: 70),
-            profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
+            profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
             profileAvatar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
     }
