@@ -12,6 +12,7 @@ final class MyNftViewController: UIViewController {
     private lazy var myNftTitleLabel = UILabel()
     private lazy var topViewsContainer = UIView()
     private lazy var emptyNftLabel = UILabel()
+    private lazy var nftSortingButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,8 +20,15 @@ final class MyNftViewController: UIViewController {
         configTopViewsContainer()
         configMyNftTitleLabel()
         configEmptyNftLabel()
+        configNftSortingButton()
         
     }
+    
+    @objc private func nftSortingButtonTapped() {
+        
+    }
+    
+    // MARK: topViewsContainer
     
     private func configTopViewsContainer() {
         topViewsContainer.backgroundColor = UIColor(named: "YPWhite")
@@ -34,6 +42,8 @@ final class MyNftViewController: UIViewController {
             topViewsContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
         ])
     }
+    
+    // MARK: myNftTitleLabel
     
     private func configMyNftTitleLabel(){
         myNftTitleLabel.textColor = UIColor(named: "YPBlack")
@@ -50,6 +60,8 @@ final class MyNftViewController: UIViewController {
         ])
     }
     
+    // MARK: emptyNftLabel
+    
     private func configEmptyNftLabel(){
         emptyNftLabel.textColor = UIColor(named: "YPBlack")
         emptyNftLabel.isHidden = true
@@ -65,6 +77,27 @@ final class MyNftViewController: UIViewController {
             emptyNftLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 16),
             emptyNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 30)
+        ])
+    }
+    
+    // MARK: nftSortingButton
+    
+    private func configNftSortingButton() {
+        let image = UIImage(named: "sortButtonImage")
+        nftSortingButton.tintColor = UIColor(named: "YPBlack")
+        nftSortingButton.isHidden = true
+        
+        nftSortingButton.setImage(image, for: .normal)
+        nftSortingButton.addTarget(self, action: #selector(nftSortingButtonTapped), for: .touchUpInside)
+        
+        nftSortingButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(nftSortingButton)
+        
+        NSLayoutConstraint.activate([
+            nftSortingButton.widthAnchor.constraint(equalToConstant: 24),
+            nftSortingButton.heightAnchor.constraint(equalToConstant: 24),
+            nftSortingButton.centerYAnchor.constraint(equalTo: topViewsContainer.centerYAnchor),
+            nftSortingButton.trailingAnchor.constraint(equalTo: topViewsContainer.trailingAnchor, constant: -9)
         ])
     }
 
