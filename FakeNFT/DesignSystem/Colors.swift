@@ -1,7 +1,6 @@
 import UIKit
 
 extension UIColor {
-    // Creates color from a hex string
     convenience init(hexString: String) {
         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int = UInt64()
@@ -25,18 +24,12 @@ extension UIColor {
         )
     }
 
-    // Ниже приведены примеры цветов, настоящие цвета надо взять из фигмы
-
-    // Primary Colors
     static let primary = UIColor(red: 0 / 255, green: 122 / 255, blue: 255 / 255, alpha: 1.0)
 
-    // Secondary Colors
     static let secondary = UIColor(red: 255 / 255, green: 193 / 255, blue: 7 / 255, alpha: 1.0)
 
-    // Background Colors
     static let background = UIColor.white
 
-    // Text Colors
     static let textPrimary = UIColor.black
     static let textSecondary = UIColor.gray
     static let textOnPrimary = UIColor.white
