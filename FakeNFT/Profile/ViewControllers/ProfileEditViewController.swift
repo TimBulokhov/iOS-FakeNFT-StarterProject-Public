@@ -36,14 +36,14 @@ final class ProfileEditViewController: UIViewController {
     private var profileInfo: Profile
     private let fetchProfileService = FetchProfileService.shared
     
+    // MARK: Init
+    
     init(profile: Profile, delegate: ProfileControllerDelegate) {
         profileInfo = profile
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
-
         alertPresenter = AlertPresenter(viewController: self)
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -51,7 +51,6 @@ final class ProfileEditViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
-        
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
         configProfileAvatar()
@@ -72,42 +71,40 @@ final class ProfileEditViewController: UIViewController {
         delegate?.didEndRedactingProfile(profileInfo)
     }
     
-    @objc func dismissKeyboard() {
-        
+    // MARK: Private
+    
+    @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
-    @objc func profileCloseButtonTapped() {
+    @objc private func profileCloseButtonTapped() {
         dismiss(animated: true)
     }
     
-    
-    @objc func profileAvatarPhotoButtonTapped() {
+    @objc private func profileAvatarPhotoButtonTapped() {
         showTextFieldAlert(message: nil)
     }
     
-    @objc func profileClearNameButtonTapped(){
+    @objc private func profileClearNameButtonTapped(){
         profileNameTextField.text?.removeAll()
         profileInfo.name.removeAll()
     }
     
-    @objc func clearProfileLinkButtonTapped(){
+    @objc private func clearProfileLinkButtonTapped(){
         profileLinkTextField.text?.removeAll()
         profileInfo.website.removeAll()
     }
     
-    @objc func didStartEditingLinkTextField(){
+    @objc private func didStartEditingLinkTextField(){
         liftLinkTextField()
     }
     
-    @objc func didEnterNameInTextField(_ sender: UITextField){
-        
+    @objc private func didEnterNameInTextField(_ sender: UITextField){
         guard
             let name = sender.text?.trimmingCharacters(in: .whitespaces),
             !name.isEmpty,
             !name.filter({ $0 != Character(" ") }).isEmpty
         else {
-            
             let warningText = "Введите имя и фамилию"
             profileClearNameButtonTapped()
             showWarningLabel(with: warningText)
@@ -119,15 +116,13 @@ final class ProfileEditViewController: UIViewController {
         profileInfo.name = name
     }
     
-    @objc func didEnterLinkInTextField(_ sender: UITextField){
+    @objc private func didEnterLinkInTextField(_ sender: UITextField){
         setInitialPositionOfViews()
-        
         guard
             let link = sender.text?.trimmingCharacters(in: .whitespaces),
             !link.isEmpty,
             !link.filter({ $0 != Character(" ") }).isEmpty
         else {
-            
             let warningText = "Введите ссылку"
             clearProfileLinkButtonTapped()
             showWarningLabel(with: warningText)
@@ -235,7 +230,6 @@ final class ProfileEditViewController: UIViewController {
         userDescriptionView.textContainer.maximumNumberOfLines = 5
         
         let text = "Поиск описания"
-        
         let style = NSMutableParagraphStyle()
         style.lineSpacing =  3
         let attributes = [NSAttributedString.Key.paragraphStyle : style,
@@ -312,7 +306,7 @@ final class ProfileEditViewController: UIViewController {
         
         profileCloseButton.setImage(image, for: .normal)
         profileCloseButton.addTarget(self, action: #selector(profileCloseButtonTapped), for: .touchUpInside)
-    
+        
         profileCloseButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(profileCloseButton)
         
@@ -323,7 +317,6 @@ final class ProfileEditViewController: UIViewController {
             profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }
-
     
     private func configProfileWarningLabel(){
         warningLabelContainer.backgroundColor = UIColor(named: "YPWhite")
@@ -358,15 +351,11 @@ final class ProfileEditViewController: UIViewController {
         isTextFieldAndSaveButtonEnabled(bool: false)
         
         DispatchQueue.main.async {
-            
             if let constraint = self.warningLabelTopConstraint.first {
-                
                 UIView.animate(withDuration: 0.5, delay: 0.03) {
                     constraint.constant = -50
                     self.view.layoutIfNeeded()
-                    
                 } completion: { isCompleted in
-                    
                     UIView.animate(withDuration: 0.4, delay: 2) {
                         constraint.constant = 0
                         self.view.layoutIfNeeded()
@@ -374,9 +363,7 @@ final class ProfileEditViewController: UIViewController {
                 }
             }
         }
-        
         DispatchQueue.main.asyncAfter(wallDeadline: .now() + 1.1, execute: {
-            
             self.isTextFieldAndSaveButtonEnabled(bool: true)
         })
     }
@@ -386,7 +373,6 @@ final class ProfileEditViewController: UIViewController {
         profileNameTextField.isEnabled = bool
         userDescriptionView.isEditable = bool
     }
-    
     
     private func clearTextView() {
         userDescriptionView.text = "Расскажите о себе"
@@ -410,21 +396,16 @@ final class ProfileEditViewController: UIViewController {
     private func updateProfileAvatarWith(url: String) {
         let title = "Сменить \n фото"
         profileAvatarPhotoLabel.text = title
-        
         guard let avatarUrl = URL(string: url) else {
             return
         }
         
         profileAvatarPhotoButton.imageView?.kf.setImage(with: avatarUrl) { [weak self] result in
-            
             guard let self else { return }
-            
             switch result {
-                
             case .success(let value):
                 self.profileInfo.avatar = url
                 profileAvatarPhotoButton.setImage(value.image, for: .normal)
-                
             case .failure(let error):
                 self.showTextFieldAlert(message: "\n Ошибка: \(error.errorCode)")
                 self.showWarningLabel(with: "Не удалось определить." + "\n" + "Попробуйте другую ссылку")
@@ -445,7 +426,6 @@ final class ProfileEditViewController: UIViewController {
     
     private func liftLinkTextField() {
         UIView.animate(withDuration: 0.3) {
-            
             if let constraint = self.profileAvatarPhotoButtonBottomConstraint.first {
                 constraint.constant = -750
                 self.view.layoutIfNeeded()
@@ -455,7 +435,6 @@ final class ProfileEditViewController: UIViewController {
     
     private func liftDescriptionTextView() {
         UIView.animate(withDuration: 0.3) {
-            
             if let constraint = self.profileAvatarPhotoButtonBottomConstraint.first {
                 constraint.constant = -647
                 self.view.layoutIfNeeded()
@@ -465,7 +444,6 @@ final class ProfileEditViewController: UIViewController {
     
     private func setInitialPositionOfViews() {
         UIView.animate(withDuration: 0.5) {
-            
             if let constraint = self.profileAvatarPhotoButtonBottomConstraint.first {
                 constraint.constant = -602
                 self.view.layoutIfNeeded()
@@ -474,22 +452,18 @@ final class ProfileEditViewController: UIViewController {
     }
 }
 
+// MARK: Extensions
+
 extension ProfileEditViewController: UITextFieldDelegate {
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        
         let maxLength = 38
-        
         let currentString = (textField.text ?? "") as NSString
-        
         let newString = currentString.replacingCharacters(in: range, with: string).trimmingCharacters(in: .newlines)
-        
         guard newString.count <= maxLength else {
-            
             showWarningLabel(with: "Ограничение \(38) слов")
             return false
         }
-        
         return true
     }
 }
@@ -497,44 +471,34 @@ extension ProfileEditViewController: UITextFieldDelegate {
 extension ProfileEditViewController: UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        
         let maxLength = 140
-        
         let currentString = (textView.text ?? "") as NSString
-        
         let newString = currentString.replacingCharacters(in: range, with: text).trimmingCharacters(in: .newlines)
-        
         guard newString.count <= maxLength else {
             return false
         }
-        
         return true
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
         setInitialPositionOfViews()
-        
         let description = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
             !description.isEmpty,
             !description.filter({ $0 != Character(" ") }).isEmpty
         else {
-        
             clearTextView()
             return
         }
-        
         textView.text = description
         profileInfo.description = description
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        
         if let text = textView.text,
            text == descriptionViewPlaceholder {
             textView.text.removeAll()
         }
-        
         textView.textColor = UIColor(named: "YPBlack")
         liftDescriptionTextView()
     }
@@ -543,7 +507,6 @@ extension ProfileEditViewController: UITextViewDelegate {
 extension ProfileEditViewController: TextFieldAlertDelegate {
     
     func alertSaveTextButtonTappep(text: String?) {
-        
         guard
             let link = text?.trimmingCharacters(in: .whitespaces),
             !link.filter({$0 != Character(" ")}).isEmpty

@@ -1,5 +1,5 @@
 //
-//  myNftTableCell.swift
+//  MyNftTableCell.swift
 //  FakeNFT
 //
 //  Created by Timofey Bulokhov on 10.09.2024.
@@ -7,9 +7,11 @@
 
 import UIKit
 
-final class myNftTableCell: UITableViewCell {
+final class MyNftTableCell: UITableViewCell {
     
     let myNftCellLabel = UILabel()
+    
+    // MARK: Init
     
     override init(style: UITableViewCell.CellStyle,
                   reuseIdentifier: String?) {
@@ -22,10 +24,9 @@ final class myNftTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //Настройка отображения ячейки в таблице "Мои NFT"
+    // MARK: myNftTableCell
     
     private func configureMyNftCell(){
-        
         myNftCellLabel.font = UIFont.bodyBold
         myNftCellLabel.numberOfLines = 2
         myNftCellLabel.translatesAutoresizingMaskIntoConstraints = false

@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 final class ProfileFactory {
     
     private weak var delegate: ProfileFactoryDelegate?
@@ -19,25 +18,19 @@ final class ProfileFactory {
     }
     
     func loadProfile() {
-        
         if let profile = fetchProfileService.profileResult {
             delegate?.didExecuteRequest(profile)
             return
         }
-        
         let token = Token.token
         
         UIBlockingProgressHUD.show()
         
         fetchProfileService.fecthProfile(token) { [weak self] result in
-            
             guard let self else { return }
-            
             switch result {
-                
             case .success(let profile):
                 self.delegate?.didExecuteRequest(profile)
-                
             case .failure(let error):
                 self.delegate?.didFailToLoadProfile(with: error)
             }
@@ -52,14 +45,10 @@ final class ProfileFactory {
         UIBlockingProgressHUD.show()
         
         updateProfileService.updateProfile(token, profile: profile) { [weak self] result in
-            
             guard let self else { return }
-            
             switch result {
-                
             case .success(let profile):
                 self.delegate?.didExecuteRequest(profile)
-                
             case .failure(let error):
                 self.delegate?.didFailToUpdateProfile(with: error)
             }

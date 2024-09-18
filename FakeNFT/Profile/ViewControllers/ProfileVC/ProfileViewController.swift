@@ -24,6 +24,8 @@ final class ProfileViewController: UIViewController {
     private var alertPresenter: AlertPresenter?
     private lazy var profileLinkButton = UIButton()
     
+    // MARK: Init
+    
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
@@ -35,7 +37,6 @@ final class ProfileViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,19 +56,21 @@ final class ProfileViewController: UIViewController {
         fetchProfile()
     }
     
-    @objc func profileEditButtonTapped() {
+    // MARK: Private
+    
+    @objc private func profileEditButtonTapped() {
         guard let profile else { return }
         let viewController = ProfileEditViewController(profile: profile, delegate: self)
         present(viewController, animated: true)
     }
     
-    @objc func profileLinkButtonTapped() {
+    @objc private func profileLinkButtonTapped() {
         print("Link button tapped")
     }
     
+    // MARK: ProfileAvatar
+    
     private func configProfileAvatar() {
-        
-        //Настройка отображения изображения профиля
         
         profileAvatar.layer.masksToBounds = true
         profileAvatar.clipsToBounds = true
@@ -75,15 +78,16 @@ final class ProfileViewController: UIViewController {
         profileAvatar.contentMode = .scaleAspectFill
         profileAvatar.translatesAutoresizingMaskIntoConstraints = false
         
-        
         NSLayoutConstraint.activate([
             profileAvatar.widthAnchor.constraint(equalToConstant: 70),
             profileAvatar.heightAnchor.constraint(equalToConstant: 70),
-            profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
+            profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
             profileAvatar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
     }
-    //Настройка отображения имени профиля
+    
+    // MARK: ProfileName
+    
     private func configProfileName() {
         profileName.textColor = UIColor(named: "YPBlack")
         profileName.font = UIFont.headline3
@@ -91,14 +95,14 @@ final class ProfileViewController: UIViewController {
         
         profileName.translatesAutoresizingMaskIntoConstraints = false
         
-        
         NSLayoutConstraint.activate([
             profileName.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
             profileName.leadingAnchor.constraint(equalTo: profileAvatar.trailingAnchor, constant: 16),
             profileName.trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -16)
         ])
     }
-    //Настройка отображения описания профиля
+    
+    // MARK: ProfileDescription
     
     private func configProfileDescription() {
         
@@ -113,7 +117,6 @@ final class ProfileViewController: UIViewController {
         profileDescription.textContainer.maximumNumberOfLines = 5
         
         let text = "Something looks like description ✅"
-        
         let style = NSMutableParagraphStyle()
         style.lineSpacing =  3
         let attributes = [NSAttributedString.Key.paragraphStyle : style,
@@ -125,24 +128,23 @@ final class ProfileViewController: UIViewController {
         
         profileDescription.translatesAutoresizingMaskIntoConstraints = false
         
-        
         NSLayoutConstraint.activate([
             profileDescription.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 20),
             profileDescription.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             profileDescription.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }
-    //Настройка отображения таблицы "Мои NFT" в профиле
+    
+    // MARK: myNftTable
     
     private func configMyNftTableView() {
         myNftTableView.backgroundColor = .clear
         myNftTableView.dataSource = self
         myNftTableView.delegate = self
-        myNftTableView.register(myNftTableCell.self, forCellReuseIdentifier: myNftCellIdentifier)
+        myNftTableView.register(MyNftTableCell.self, forCellReuseIdentifier: myNftCellIdentifier)
         myNftTableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1000)
         
         myNftTableView.translatesAutoresizingMaskIntoConstraints = false
-        
         
         NSLayoutConstraint.activate([
             myNftTableView.topAnchor.constraint(equalTo: profileLinkButton.bottomAnchor, constant: 44),
@@ -152,7 +154,7 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    //Настройка отображения кнопки редактирования профиля
+    // MARK: ProfileEditButton
     
     private func configProfileEditButton() {
         
@@ -160,7 +162,6 @@ final class ProfileViewController: UIViewController {
         profileEditButton.setImage(UIImage(named: "editButtonImage"), for: .normal)
         profileEditButton.addTarget(self, action: #selector(profileEditButtonTapped), for: .touchUpInside)
         profileEditButton.translatesAutoresizingMaskIntoConstraints = false
-        
         
         NSLayoutConstraint.activate([
             profileEditButton.widthAnchor.constraint(equalToConstant: 42),
@@ -170,7 +171,6 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    
     private func configLinkButton() {
         profileLinkButton.setTitleColor(UIColor(named: "YPBlue"), for: .normal)
         profileLinkButton.titleLabel?.font = UIFont.caption1
@@ -179,7 +179,6 @@ final class ProfileViewController: UIViewController {
         profileLinkButton.addTarget(self, action: #selector(profileLinkButtonTapped), for: .touchUpInside)
         
         profileLinkButton.translatesAutoresizingMaskIntoConstraints = false
-       
         
         NSLayoutConstraint.activate([
             profileLinkButton.heightAnchor.constraint(equalToConstant: 20),
@@ -233,9 +232,7 @@ final class ProfileViewController: UIViewController {
     
     private func showServiceErrorAlert(_ error: ProfileServiceError, completion: @escaping () -> Void) {
         let errorString: String
-        
         switch error {
-            
         case .codeError(let value):
             errorString = value
         case .responseError(let value):
@@ -243,9 +240,7 @@ final class ProfileViewController: UIViewController {
         case .invalidRequest:
             errorString = "Unknown error"
         }
-        
         let message = "Не удалось обновить профиль"
-        
         let model = AlertModel(
             title: "Ошибка: \(errorString)",
             message: message,
@@ -253,10 +248,11 @@ final class ProfileViewController: UIViewController {
             completionTitle: "Повторить") {
                 completion()
             }
-        
         self.alertPresenter?.defaultAlert(model: model)
     }
 }
+
+// MARK: Extensions
 
 extension ProfileViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -264,11 +260,9 @@ extension ProfileViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: myNftCellIdentifier, for: indexPath) as? myNftTableCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: myNftCellIdentifier, for: indexPath) as? MyNftTableCell else {
             return UITableViewCell()
         }
-        
         if indexPath.row == 0 {
             cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row] + " " + "(\(nftIdArray.count))"
         } else if indexPath.row == 1 {
@@ -276,7 +270,6 @@ extension ProfileViewController: UITableViewDataSource {
         } else {
             cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row]
         }
-        
         cell.backgroundColor = .clear
         cell.accessoryType = .disclosureIndicator
         
@@ -297,9 +290,7 @@ extension ProfileViewController: UITableViewDelegate {
 
 extension ProfileViewController: ProfileControllerDelegate {
     func didEndRedactingProfile(_ profile: Profile) {
-        
         guard didProfileInfoChanged(profile) else { return }
-        
         guard
             profile.name.count >= 2,
             profile.website.count >= 7
@@ -317,7 +308,7 @@ extension ProfileViewController: ProfileControllerDelegate {
                 title: "Ошибка обновления профиля",
                 message: message,
                 closeAlertTitle: "Закрыть",
-                completionTitle: "Вернутся") {
+                completionTitle: "Вернуться") {
                     self.backToRedact(profile: profile)
                 }
             
@@ -329,7 +320,6 @@ extension ProfileViewController: ProfileControllerDelegate {
     }
     
     private func didProfileInfoChanged(_ profile: Profile) -> Bool {
-        
         guard
             let oldProfile = self.profile,
             oldProfile.name == profile.name,
@@ -360,14 +350,11 @@ extension ProfileViewController: ProfileFactoryDelegate {
     }
     
     func didFailToUpdateProfile(with error: ProfileServiceError) {
-        
         if let profile = UpdateProfileService.profileResult {
-            
             showServiceErrorAlert(error) {
                 self.updateProfile(profile)
             }
         } else if let profile = self.profile {
-            
             let model = AlertModel(
                 title: "Неизвестная ошбика",
                 message: "Попробуйте отредактировать ещё раз",
@@ -375,7 +362,6 @@ extension ProfileViewController: ProfileFactoryDelegate {
                 completionTitle: "Вернуться") {
                     self.backToRedact(profile: profile)
                 }
-            
             alertPresenter?.defaultAlert(model: model)
         }
     }

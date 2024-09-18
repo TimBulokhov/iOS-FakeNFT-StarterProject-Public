@@ -17,9 +17,7 @@ final class FetchProfileService {
     private init() {}
     
     func fecthProfile(_ token: String, completion: @escaping (Result<Profile,ProfileServiceError>) -> Void) {
-        
         assert(Thread.isMainThread)
-        
         if task != nil {
             task?.cancel()
         }
@@ -30,27 +28,19 @@ final class FetchProfileService {
         }
         
         let session: URLSessionDataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            
             DispatchQueue.main.async { [weak self] in
-                
                 guard let self = self else {return}
-                
                 if let error = error {
                     completion(.failure(ProfileServiceError.codeError("Unknown error")))
                     return
                 }
-                
                 if let response = response as? HTTPURLResponse, response.statusCode < 200 || response.statusCode  >= 300 {
-                    
                     completion(.failure(ProfileServiceError.responseError(response.statusCode)))
                     return
                 }
-                
                 if let data = data {
-                    
                     do {
                         let profileResultInfo = try JSONDecoder().decode(Profile.self, from: data)
-                        
                         self.profileResult = profileResultInfo
                         completion(.success(profileResultInfo))
                     } catch {
@@ -60,13 +50,11 @@ final class FetchProfileService {
                 self.task = nil
             }
         }
-        
         task = session
         session.resume()
     }
     
     func makeRequstBody(token: String) -> URLRequest? {
-        
         let profileRequest = ProfileRequest(id: "1")
         
         guard let url = profileRequest.endpoint else {
