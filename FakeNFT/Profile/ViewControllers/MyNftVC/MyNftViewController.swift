@@ -13,6 +13,8 @@ final class MyNftViewController: UIViewController {
     private lazy var topViewsContainer = UIView()
     private lazy var emptyNftLabel = UILabel()
     private lazy var nftSortingButton = UIButton()
+    private lazy var nftCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let nftCollectionViewCellIdentifier = "nftCollectionCellIdentifier"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,5 +102,27 @@ final class MyNftViewController: UIViewController {
             nftSortingButton.trailingAnchor.constraint(equalTo: topViewsContainer.trailingAnchor, constant: -9)
         ])
     }
+    
+    // MARK: nftCollectionView
+    
+    private func configNftCollectionView() {
+        //nftCollectionView.dataSource = self
+        //nftCollectionView.delegate = self
+        nftCollectionView.backgroundColor = .clear
+        
+        nftCollectionView.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
+        
+        nftCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(nftCollectionView)
+        
+        NSLayoutConstraint.activate([
+            nftCollectionView.topAnchor.constraint(equalTo: topViewsContainer.bottomAnchor),
+            nftCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
 
 }
+
+// MARK: Extensions
