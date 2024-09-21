@@ -16,7 +16,7 @@ final class ProfileViewController: UIViewController {
     private let myNftCellIdentifier = "tableCellIdentifier"
     private let myNftTableViewCells = ["Мои NFT", "Избранные NFT", "О разработчике"]
     private var nftIdArray: [String] = []
-    private var likedNFTIdArray: [String] = []
+    private var favoriteNFTsId: [String] = []
     private lazy var profileEditButton = UIButton(type: .system)
     private var profile: Profile?
     private let servicesAssembly: ServicesAssembly
@@ -200,7 +200,7 @@ final class ProfileViewController: UIViewController {
     private func updateControllerProfile(_ profile: Profile) {
         self.profile = profile
         nftIdArray = profile.nfts
-        likedNFTIdArray = profile.likes
+        favoriteNFTsId = profile.likes
         
         profileName.text = profile.name
         profileDescription.text = profile.description
@@ -266,7 +266,7 @@ extension ProfileViewController: UITableViewDataSource {
         if indexPath.row == 0 {
             cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row] + " " + "(\(nftIdArray.count))"
         } else if indexPath.row == 1 {
-            cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row] + " " + "(\(likedNFTIdArray.count))"
+            cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row] + " " + "(\(favoriteNFTsId.count))"
         } else {
             cell.myNftCellLabel.text = myNftTableViewCells[indexPath.row]
         }
@@ -285,6 +285,12 @@ extension ProfileViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.row == 0 {
+            let viewController = MyNftViewController(delegate: self, nftIdArray: nftIdArray, favoriteNFTsId: favoriteNFTsId)
+            viewController.modalPresentationStyle = .fullScreen
+            present(viewController, animated: true)
+        }
     }
 }
 
@@ -364,5 +370,12 @@ extension ProfileViewController: ProfileFactoryDelegate {
                 }
             alertPresenter?.defaultAlert(model: model)
         }
+    }
+}
+
+extension ProfileViewController: NFTCollectionControllerDelegate {
+    func didUpdateFavoriteNFT(_ nftIdArray: [String]) {
+        favoriteNFTsId = nftIdArray
+        myNftTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .none)
     }
 }

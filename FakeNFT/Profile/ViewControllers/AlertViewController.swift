@@ -49,26 +49,38 @@ final class AlertPresenter {
     func sortionAlert(delegate: SortAlertDelegate) {
         let alert = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
         alert.view.tintColor = UIColor(named: "YPBlue")
-        
         let sortByPrice = UIAlertAction(title: "По цене", style: .default) { _ in
             delegate.sortByPrice()
         }
-        
         let sortByRate = UIAlertAction(title: "По рейтингу", style: .default) { _ in
             delegate.sortByRate()
         }
-        
         let sortByName = UIAlertAction(title: "По названию", style: .default) { _ in
             delegate.sortByName()
         }
-        
         let closeAction = UIAlertAction(title: "Закрыть", style: .cancel)
-        
         alert.addAction(sortByPrice)
         alert.addAction(sortByRate)
         alert.addAction(sortByName)
         alert.addAction(closeAction)
-        
+        viewController.present(alert, animated: true)
+    }
+    
+    func fetchNFTAlert(title: String, delegate: FetchNFTAlertDelegate) {
+        let message = "Не удалось получить" + "\n" + "следующий NFT"
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let actionCancel = UIAlertAction(title: "Закрыть", style: .cancel) { _ in
+            delegate.closeActionTapped()
+        }
+        let actionTryAgain = UIAlertAction(title: "Повторить", style: .default) { _ in
+            delegate.tryToReloadNFT()
+        }
+        let actionLoadRest = UIAlertAction(title: "Пропустить", style: .default) { _ in
+            delegate.loadRestOfNFT()
+        }
+        alert.addAction(actionCancel)
+        alert.addAction(actionTryAgain)
+        alert.addAction(actionLoadRest)
         viewController.present(alert, animated: true)
     }
 }

@@ -1,35 +1,33 @@
 //
-//  FetchProfileService.swift
+//  FetchNftService.swift
 //  FakeNFT
 //
-//  Created by Timofey Bulokhov on 16.09.2024.
+//  Created by Timofey Bulokhov on 19.09.2024.
 //
 
-import UIKit
+import Foundation
 
-final class FetchProfileService {
+final class FetchNftService {
     
-    private(set) var profileResult: Profile?
-    static let shared = FetchProfileService()
-    
+    private(set) var nftResult: NftModel?
+    static let shared = FetchNftService()
     private var task: URLSessionTask?
     
     private init() {}
     
-    func fecthProfile(_ token: String, completion: @escaping (Result<Profile,ProfileServiceError>) -> Void) {
+    func fecthNFT(_ token: String, NFTId: String, completion: @escaping (Result<NftModel, ProfileServiceError>) -> Void) {
         assert(Thread.isMainThread)
         if task != nil {
             task?.cancel()
         }
-        
-        guard let request = makeRequstBody(token: token) else {
+        guard let request = makeRequstBody(token: token, NFTId: NFTId) else {
             completion(.failure(ProfileServiceError.codeError("Uknown Error")))
             return
         }
-        
         let session: URLSessionDataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
+                self.task = nil
                 if let error = error {
                     completion(.failure(ProfileServiceError.codeError("Unknown error")))
                     return
@@ -40,33 +38,38 @@ final class FetchProfileService {
                 }
                 if let data = data {
                     do {
-                        let profileResultInfo = try JSONDecoder().decode(Profile.self, from: data)
-                        self.profileResult = profileResultInfo
-                        completion(.success(profileResultInfo))
+                        let nftResultInfo = try JSONDecoder().decode(NftModel.self, from: data)
+                        self.nftResult = nftResultInfo
+                        completion(.success(nftResultInfo))
                     } catch {
                         completion(.failure(ProfileServiceError.codeError("Unknown error")))
                     }
                 }
-                self.task = nil
             }
         }
         task = session
         session.resume()
     }
     
-    func makeRequstBody(token: String) -> URLRequest? {
-        let profileRequest = ProfileRequest(id: "1")
-        
-        guard let url = profileRequest.endpoint else {
+    func makeRequstBody(token: String, NFTId: String) -> URLRequest? {
+        let NFTRequest = NFTRequest(id: NFTId)
+        guard let url = NFTRequest.endpoint,
+              var urlComponents = URLComponents(string: "\(url)")
+        else {
             assertionFailure("Failed to create URL")
             return nil
         }
-        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "nft_id", value: NFTId)
+        ]
+        guard let url = urlComponents.url else {
+            assertionFailure("Failed to create URL")
+            return nil
+        }
         var request: URLRequest = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("\(String(describing: token))", forHTTPHeaderField: "X-Practicum-Mobile-Token")
-        
         return request
     }
 }
-

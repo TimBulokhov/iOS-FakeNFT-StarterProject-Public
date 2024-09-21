@@ -45,9 +45,17 @@ final class TabBarController: UITabBarController {
     private func addTabBarItems(){
         
         let profileViewController = ProfileViewController(servicesAssembly: servicesAssembly)
-
         profileViewController.tabBarItem = profileTabBarItem
         
-        self.viewControllers = [profileViewController]
+        let catalogController = CatalogViewController(servicesAssembly: servicesAssembly)
+        catalogController.tabBarItem = catalogTabBarItem
+        
+        let cartViewController = CartViewController(servicesAssembly: servicesAssembly)
+        cartViewController.tabBarItem = cartTabBarItem
+        
+        let statisticVeiwController = StatisticViewController(servicesAssembly: servicesAssembly)
+        statisticVeiwController.tabBarItem = statisticTabBarItem
+        
+        self.viewControllers = [profileViewController, catalogController, cartViewController, statisticVeiwController]
     }
 }
