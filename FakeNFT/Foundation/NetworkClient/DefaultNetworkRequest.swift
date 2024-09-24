@@ -7,14 +7,16 @@ enum HttpMethod: String {
     case delete = "DELETE"
 }
 
+struct DefaultNetworkRequest: NetworkRequest {
+    var endpoint: URL?
+    let dto: Encodable?
+    let httpMethod: HttpMethod
+}
+
 protocol NetworkRequest {
     var endpoint: URL? { get }
     var httpMethod: HttpMethod { get }
-    var dto: Dto? { get }
-}
-
-protocol Dto {
-    func asDictionary() -> [String: String]
+    var dto: Encodable? { get }
 }
 
 // default values
