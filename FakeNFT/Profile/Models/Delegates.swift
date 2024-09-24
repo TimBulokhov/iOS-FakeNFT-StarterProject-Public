@@ -26,3 +26,24 @@ protocol ProfileControllerDelegate: AnyObject {
 protocol TextFieldAlertDelegate: UIViewController {
     func alertSaveTextButtonTappep(text: String?)
 }
+
+protocol CollectionViewCellDelegate: AnyObject {
+    func cellLikeButtonTapped(_ cell: MyNftCollectionViewCell)
+}
+
+protocol NFTCollectionControllerDelegate: AnyObject {
+    func didUpdateFavoriteNFT(_ nftIdArray: [String])
+}
+
+protocol NFTFactoryDelegate: AnyObject {
+    func didRecieveNFT(_ nft: NftModel)
+    func didUpdateFavoriteNFT(_ favoriteNFTs: LikedNftModel)
+    func didFailToLoadNFT(with error: ProfileServiceError)
+    func didFailToUpdateFavoriteNFT(with error: ProfileServiceError)
+}
+
+protocol FetchNFTAlertDelegate {
+    func tryToReloadNFT()
+    func loadRestOfNFT()
+    func closeActionTapped()
+}

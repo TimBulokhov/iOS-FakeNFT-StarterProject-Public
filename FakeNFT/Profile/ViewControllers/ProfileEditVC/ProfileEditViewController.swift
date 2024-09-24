@@ -11,26 +11,168 @@ final class ProfileEditViewController: UIViewController {
     
     private weak var delegate: ProfileControllerDelegate?
     
-    private lazy var profileNameLabel = UILabel()
-    private lazy var profileNameTextField = UITextField()
-    private let profileClearNameButton = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
+    private lazy var profileNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.text = "Имя"
+        label.font = UIFont.headline3
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
-    private lazy var profileAvatarPhotoButton = UIButton()
-    private lazy var profileAvatarPhotoLabel = UILabel()
+    private lazy var profileNameTextField: UITextField = {
+        let text = UITextField()
+        text.backgroundColor = UIColor(named: "YPMediumLightGray")
+        text.placeholder = "Введите имя и фамилию"
+        text.text = "Поиск имени и фамилии"
+        text.delegate = self
+        text.layer.cornerRadius = 16
+        text.layer.masksToBounds = true
+        text.leftViewMode = .always
+        text.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        text.addTarget(self, action: #selector(didEnterNameInTextField(_:)), for: .editingDidEndOnExit)
+        text.addTarget(self, action: #selector(didEnterNameInTextField(_:)), for: .editingDidEnd)
+        text.rightView = profileClearNameButton
+        text.rightViewMode = .whileEditing
+        text.translatesAutoresizingMaskIntoConstraints = false
+        return text
+    }()
+    
+    private let profileClearNameButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
+        button.backgroundColor = UIColor(named: "YPMediumLightGray")
+        button.contentHorizontalAlignment = .leading
+        button.addTarget(self, action: #selector(profileClearNameButtonTapped), for: .touchUpInside)
+        button.setImage(UIImage(named: "x.mark.circle"), for: .normal)
+        return button
+    }()
+    
+    private lazy var profileAvatarPhotoButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "avatarPlug")
+        button.addSubview(profileAvatarPhotoLabel)
+        button.tintColor = .clear
+        button.setImage(image, for: .normal)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 35
+        button.clipsToBounds = true
+        button.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(profileAvatarPhotoButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var profileAvatarPhotoLabel: UILabel = {
+        let label = UILabel()
+        let title = "Поиск \n фото"
+        label.backgroundColor = .black.withAlphaComponent(0.6)
+        label.text = title
+        label.numberOfLines = 2
+        label.textColor = .white
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var descriptionTitleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.text = "Описание"
+        label.font = .headline3
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var userDescriptionView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = UIColor(named: "YPMediumLightGray")
+        textView.delegate = self
+        textView.isScrollEnabled = false
+        textView.textContainerInset = UIEdgeInsets(top: 11, left: 16, bottom: -11, right: -16)
+        textView.layer.masksToBounds = true
+        textView.layer.cornerRadius = 12
+        textView.textAlignment = .left
+        textView.textContainer.maximumNumberOfLines = 5
+        let text = "Поиск описания"
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing =  3
+        let attributes = [NSAttributedString.Key.paragraphStyle : style, .foregroundColor: UIColor(named: "YPBlack"), .font: UIFont.bodyRegular
+        ]
+        textView.attributedText = NSAttributedString(string: text, attributes: attributes as [NSAttributedString.Key : Any])
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }()
+    
+    private lazy var profileLinkLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.text = "Сайт"
+        label.font = UIFont.headline3
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var profileLinkTextField: UITextField = {
+        let text = UITextField()
+        text.backgroundColor = UIColor(named: "YPMediumLightGray")
+        text.placeholder = "Введите ссылку"
+        text.text = "Поиск ссылки сайта"
+        text.delegate = self
+        text.layer.cornerRadius = 16
+        text.layer.masksToBounds = true
+        text.leftViewMode = .always
+        text.addTarget(self, action: #selector(didEnterLinkInTextField(_:)), for: .editingDidEndOnExit)
+        text.addTarget(self, action: #selector(didEnterLinkInTextField(_:)), for: .editingDidEnd)
+        text.addTarget(self, action: #selector(didStartEditingLinkTextField), for: .editingDidBegin)
+        text.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        text.rightView = clearProfileLinkButton
+        text.rightViewMode = .whileEditing
+        text.translatesAutoresizingMaskIntoConstraints = false
+        return text
+    }()
+    
+    private let clearProfileLinkButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
+        button.backgroundColor = UIColor(named: "YPMediumLightGray")
+        button.contentHorizontalAlignment = .leading
+        button.addTarget(self, action: #selector(clearProfileLinkButtonTapped), for: .touchUpInside)
+        button.setImage(UIImage(named: "x.mark.circle"), for: .normal)
+        return button
+    }()
+    
+    private lazy var profileCloseButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "close")
+        button.tintColor = UIColor(named: "YPBlack")
+        button.setImage(image, for: .normal)
+        button.addTarget(self, action: #selector(profileCloseButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let warningLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPRed")
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let warningLabelContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "YPWhite")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private var warningLabelTopConstraint: [NSLayoutConstraint] = []
+    
     private var profileAvatarPhotoButtonBottomConstraint: [NSLayoutConstraint] = []
     
-    private lazy var descriptionTitleLabel = UILabel()
-    private lazy var userDescriptionView = UITextView()
     private let descriptionViewPlaceholder = "Расскажите о себе"
-    
-    private lazy var profileLinkLabel = UILabel()
-    private lazy var profileLinkTextField = UITextField()
-    private let clearProfileLinkButton = UIButton(frame: CGRect(x: 0, y: 0, width: 17, height: 17))
-    
-    private lazy var profileCloseButton = UIButton()
-    private let warningLabel = UILabel()
-    private let warningLabelContainer = UIView()
-    private var warningLabelTopConstraint: [NSLayoutConstraint] = []
     
     private var alertPresenter: AlertPresenter?
     private var profileInfo: Profile
@@ -53,12 +195,7 @@ final class ProfileEditViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YPWhite")
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
-        configProfileAvatar()
-        configProfileWarningLabel()
-        configProfileName()
-        configProfileDescription()
-        configProfileLink()
-        configProfileCloseButton()
+        setupUI()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -134,35 +271,18 @@ final class ProfileEditViewController: UIViewController {
         profileInfo.website = link
     }
     
-    private func configProfileName(){
-        profileNameLabel.textColor = UIColor(named: "YPBlack")
-        profileNameTextField.backgroundColor = UIColor(named: "YPMediumLightGray")
-        profileClearNameButton.backgroundColor = UIColor(named: "YPMediumLightGray")
+    // MARK: setupUI
+    
+    private func setupUI(){
         
-        profileNameLabel.text = "Имя"
-        profileNameLabel.font = UIFont.headline3
+        [profileNameLabel, profileNameTextField, profileAvatarPhotoButton, descriptionTitleLabel, userDescriptionView, profileLinkLabel, profileLinkTextField, profileCloseButton, warningLabel, warningLabelContainer].forEach{
+            view.addSubview($0)
+        }
         
-        profileNameTextField.placeholder = "Введите имя и фамилию"
-        profileNameTextField.text = "Поиск имени и фамилии"
-        profileNameTextField.delegate = self
-        profileNameTextField.layer.cornerRadius = 16
-        profileNameTextField.layer.masksToBounds = true
-        profileNameTextField.leftViewMode = .always
-        
-        profileNameTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        profileNameTextField.addTarget(self, action: #selector(didEnterNameInTextField(_:)), for: .editingDidEndOnExit)
-        profileNameTextField.addTarget(self, action: #selector(didEnterNameInTextField(_:)), for: .editingDidEnd)
-        profileNameTextField.rightView = profileClearNameButton
-        profileNameTextField.rightViewMode = .whileEditing
-        
-        profileClearNameButton.contentHorizontalAlignment = .leading
-        profileClearNameButton.addTarget(self, action: #selector(profileClearNameButtonTapped), for: .touchUpInside)
-        profileClearNameButton.setImage(UIImage(named: "x.mark.circle"), for: .normal)
-        
-        profileNameTextField.translatesAutoresizingMaskIntoConstraints = false
-        profileNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileNameTextField)
-        view.addSubview(profileNameLabel)
+        let constraint = warningLabel.topAnchor.constraint(equalTo: warningLabelContainer.topAnchor)
+        warningLabelTopConstraint.append(constraint)
+        warningLabelTopConstraint.first?.isActive = true
+        warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
         NSLayoutConstraint.activate([
             profileNameLabel.topAnchor.constraint(equalTo: profileAvatarPhotoButton.bottomAnchor, constant: 24),
@@ -173,35 +293,9 @@ final class ProfileEditViewController: UIViewController {
             profileNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             profileNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            profileClearNameButton.widthAnchor.constraint(equalToConstant: profileClearNameButton.frame.width + 12)
-        ])
-    }
-    
-    private func configProfileAvatar() {
-        let image = UIImage(named: "avatarPlug")
-        let title = "Поиск \n фото"
-        profileAvatarPhotoButton.tintColor = .clear
-        profileAvatarPhotoButton.setImage(image, for: .normal)
-        profileAvatarPhotoLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        
-        profileAvatarPhotoLabel.text = title
-        profileAvatarPhotoLabel.numberOfLines = 2
-        profileAvatarPhotoLabel.textColor = .white
-        profileAvatarPhotoLabel.textAlignment = .center
-        profileAvatarPhotoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
-        
-        profileAvatarPhotoButton.layer.masksToBounds = true
-        profileAvatarPhotoButton.layer.cornerRadius = 35
-        profileAvatarPhotoButton.clipsToBounds = true
-        profileAvatarPhotoButton.contentMode = .scaleAspectFill
-        
-        profileAvatarPhotoButton.addTarget(self, action: #selector(profileAvatarPhotoButtonTapped), for: .touchUpInside)
-        profileAvatarPhotoLabel.translatesAutoresizingMaskIntoConstraints = false
-        profileAvatarPhotoButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileAvatarPhotoButton)
-        profileAvatarPhotoButton.addSubview(profileAvatarPhotoLabel)
-        
-        NSLayoutConstraint.activate([
+            profileClearNameButton.widthAnchor.constraint(equalToConstant: profileClearNameButton.frame.width + 12),
+            clearProfileLinkButton.widthAnchor.constraint(equalToConstant: clearProfileLinkButton.frame.width + 12),
+            
             profileAvatarPhotoButton.widthAnchor.constraint(equalToConstant: 70),
             profileAvatarPhotoButton.heightAnchor.constraint(equalToConstant: 70),
             profileAvatarPhotoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -210,84 +304,16 @@ final class ProfileEditViewController: UIViewController {
             profileAvatarPhotoLabel.topAnchor.constraint(equalTo: profileAvatarPhotoButton.topAnchor),
             profileAvatarPhotoLabel.bottomAnchor.constraint(equalTo: profileAvatarPhotoButton.topAnchor, constant: 70),
             profileAvatarPhotoLabel.leadingAnchor.constraint(equalTo: profileAvatarPhotoButton.leadingAnchor),
-            profileAvatarPhotoLabel.trailingAnchor.constraint(equalTo: profileAvatarPhotoButton.trailingAnchor)
-        ])
-    }
-    
-    private func configProfileDescription() {
-        descriptionTitleLabel.textColor = UIColor(named: "YPBlack")
-        userDescriptionView.backgroundColor = UIColor(named: "YPMediumLightGray")
-        userDescriptionView.delegate = self
-        userDescriptionView.isScrollEnabled = false
-        
-        descriptionTitleLabel.text = "Описание"
-        descriptionTitleLabel.font = .headline3
-        
-        userDescriptionView.textContainerInset = UIEdgeInsets(top: 11, left: 16, bottom: -11, right: -16)
-        userDescriptionView.layer.masksToBounds = true
-        userDescriptionView.layer.cornerRadius = 12
-        userDescriptionView.textAlignment = .left
-        userDescriptionView.textContainer.maximumNumberOfLines = 5
-        
-        let text = "Поиск описания"
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing =  3
-        let attributes = [NSAttributedString.Key.paragraphStyle : style,
-                          .foregroundColor: UIColor(named: "YPBlack"),
-                          .font: UIFont.bodyRegular
-        ]
-        
-        userDescriptionView.attributedText = NSAttributedString(string: text, attributes: attributes as [NSAttributedString.Key : Any])
-        
-        view.addSubview(userDescriptionView)
-        view.addSubview(descriptionTitleLabel)
-        descriptionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        userDescriptionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileAvatarPhotoLabel.trailingAnchor.constraint(equalTo: profileAvatarPhotoButton.trailingAnchor),
+            
             descriptionTitleLabel.topAnchor.constraint(equalTo: profileNameTextField.bottomAnchor, constant: 24),
             descriptionTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
             userDescriptionView.heightAnchor.constraint(equalToConstant: 132),
             userDescriptionView.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 8),
             userDescriptionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            userDescriptionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-    }
-    
-    private func configProfileLink(){
-        profileLinkLabel.textColor = UIColor(named: "YPBlack")
-        profileLinkTextField.backgroundColor = UIColor(named: "YPMediumLightGray")
-        clearProfileLinkButton.backgroundColor = UIColor(named: "YPMediumLightGray")
-        
-        profileLinkLabel.text = "Сайт"
-        profileLinkLabel.font = UIFont.headline3
-        
-        profileLinkTextField.placeholder = "Введите ссылку"
-        profileLinkTextField.text = "Поиск ссылки сайта"
-        profileLinkTextField.delegate = self
-        profileLinkTextField.layer.cornerRadius = 16
-        profileLinkTextField.layer.masksToBounds = true
-        profileLinkTextField.leftViewMode = .always
-        
-        profileLinkTextField.addTarget(self, action: #selector(didEnterLinkInTextField(_:)), for: .editingDidEndOnExit)
-        profileLinkTextField.addTarget(self, action: #selector(didEnterLinkInTextField(_:)), for: .editingDidEnd)
-        profileLinkTextField.addTarget(self, action: #selector(didStartEditingLinkTextField), for: .editingDidBegin)
-        
-        profileLinkTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        profileLinkTextField.rightView = clearProfileLinkButton
-        profileLinkTextField.rightViewMode = .whileEditing
-        
-        clearProfileLinkButton.contentHorizontalAlignment = .leading
-        clearProfileLinkButton.addTarget(self, action: #selector(clearProfileLinkButtonTapped), for: .touchUpInside)
-        clearProfileLinkButton.setImage(UIImage(named: "x.mark.circle"), for: .normal)
-        
-        profileLinkLabel.translatesAutoresizingMaskIntoConstraints = false
-        profileLinkTextField.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileLinkTextField)
-        view.addSubview(profileLinkLabel)
-        
-        NSLayoutConstraint.activate([
+            userDescriptionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             profileLinkLabel.topAnchor.constraint(equalTo: userDescriptionView.bottomAnchor, constant: 24),
             profileLinkLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
@@ -296,53 +322,17 @@ final class ProfileEditViewController: UIViewController {
             profileLinkTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             profileLinkTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            clearProfileLinkButton.widthAnchor.constraint(equalToConstant: clearProfileLinkButton.frame.width + 12)
-        ])
-    }
-    
-    private func configProfileCloseButton() {
-        let image = UIImage(named: "close")
-        profileCloseButton.tintColor = UIColor(named: "YPBlack")
-        
-        profileCloseButton.setImage(image, for: .normal)
-        profileCloseButton.addTarget(self, action: #selector(profileCloseButtonTapped), for: .touchUpInside)
-        
-        profileCloseButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(profileCloseButton)
-        
-        NSLayoutConstraint.activate([
             profileCloseButton.widthAnchor.constraint(equalToConstant: 42),
             profileCloseButton.heightAnchor.constraint(equalToConstant: 42),
             profileCloseButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -780),
-            profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-    }
-    
-    private func configProfileWarningLabel(){
-        warningLabelContainer.backgroundColor = UIColor(named: "YPWhite")
-        warningLabel.textColor = UIColor(named: "YPRed")
-        warningLabel.font = UIFont.systemFont(ofSize: 17)
-        warningLabel.numberOfLines = 2
-        warningLabel.textAlignment = .center
-        
-        view.addSubview(warningLabel)
-        view.addSubview(warningLabelContainer)
-        warningLabel.translatesAutoresizingMaskIntoConstraints = false
-        warningLabelContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             warningLabelContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             warningLabelContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             warningLabelContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            
         ])
-        
-        let constraint = warningLabel.topAnchor.constraint(equalTo: warningLabelContainer.topAnchor)
-        
-        warningLabelTopConstraint.append(constraint)
-        
-        warningLabelTopConstraint.first?.isActive = true
-        warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
     
     private func showWarningLabel(with text: String){
