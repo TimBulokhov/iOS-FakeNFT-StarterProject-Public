@@ -34,7 +34,7 @@
 		1262FF232C9C695A009A443A /* FetchNftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF222C9C695A009A443A /* FetchNftService.swift */; };
 		1262FF252C9C6A35009A443A /* UpdateNftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF242C9C6A35009A443A /* UpdateNftService.swift */; };
 		1262FF2C2C9C70D2009A443A /* GeometricParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF2B2C9C70D2009A443A /* GeometricParams.swift */; };
-		1262FF312C9C80DC009A443A /* CatalogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF302C9C80DC009A443A /* CatalogViewController.swift */; };
+		1262FF312C9C80DC009A443A /* CatalogueViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF302C9C80DC009A443A /* CatalogueViewController.swift */; };
 		1262FF332C9C8100009A443A /* StatisticViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF322C9C8100009A443A /* StatisticViewController.swift */; };
 		1262FF352C9C811B009A443A /* CartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1262FF342C9C811B009A443A /* CartViewController.swift */; };
 		126541DD2C909C560020A21E /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126541DC2C909C560020A21E /* ProfileViewController.swift */; };
@@ -118,7 +118,7 @@
 		1262FF222C9C695A009A443A /* FetchNftService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchNftService.swift; sourceTree = "<group>"; };
 		1262FF242C9C6A35009A443A /* UpdateNftService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateNftService.swift; sourceTree = "<group>"; };
 		1262FF2B2C9C70D2009A443A /* GeometricParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometricParams.swift; sourceTree = "<group>"; };
-		1262FF302C9C80DC009A443A /* CatalogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogViewController.swift; sourceTree = "<group>"; };
+		1262FF302C9C80DC009A443A /* CatalogueViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogueViewController.swift; sourceTree = "<group>"; };
 		1262FF322C9C8100009A443A /* StatisticViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticViewController.swift; sourceTree = "<group>"; };
 		1262FF342C9C811B009A443A /* CartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
 		126541DC2C909C560020A21E /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -286,12 +286,12 @@
 			path = Updators;
 			sourceTree = "<group>";
 		};
-		1262FF2D2C9C8013009A443A /* CatalogVC */ = {
+		1262FF2D2C9C8013009A443A /* CatalogueVC */ = {
 			isa = PBXGroup;
 			children = (
-				1262FF302C9C80DC009A443A /* CatalogViewController.swift */,
+				1262FF302C9C80DC009A443A /* CatalogueViewController.swift */,
 			);
-			path = CatalogVC;
+			path = CatalogueVC;
 			sourceTree = "<group>";
 		};
 		1262FF2E2C9C8039009A443A /* CartVC */ = {
@@ -362,7 +362,7 @@
 				1262FF172C9C5EB4009A443A /* ProfileEditVC */,
 				1265E5DC2C987C9900472224 /* ProfileVC */,
 				1262FF162C9C5E28009A443A /* MyNftVC */,
-				1262FF2D2C9C8013009A443A /* CatalogVC */,
+				1262FF2D2C9C8013009A443A /* CatalogueVC */,
 				1262FF2F2C9C80AB009A443A /* StatisticVC */,
 				1262FF2E2C9C8039009A443A /* CartVC */,
 			);
@@ -734,7 +734,7 @@
 				1265E5F12C987F7B00472224 /* UpdateProfileService.swift in Sources */,
 				3F6806D329CBBE9600B4F915 /* NetworkRequest.swift in Sources */,
 				1262FF1D2C9C67B7009A443A /* NftModel.swift in Sources */,
-				1262FF312C9C80DC009A443A /* CatalogViewController.swift in Sources */,
+				1262FF312C9C80DC009A443A /* CatalogueViewController.swift in Sources */,
 				0CFCB7492A7808900009A829 /* TestCatalogController.swift in Sources */,
 				1265E5F32C987F9500472224 /* ProfileFactory.swift in Sources */,
 				3F6806D129CBBE6B00B4F915 /* NetworkClient.swift in Sources */,

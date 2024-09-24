@@ -9,7 +9,7 @@ final class TabBarController: UITabBarController {
         image: UIImage(named: "profileItem"),
         selectedImage: nil)
     
-    private let catalogTabBarItem = UITabBarItem(
+    private let catalogueTabBarItem = UITabBarItem(
         title: "Каталог",
         image: UIImage(named: "catalogItem"),
         selectedImage: nil)
@@ -47,15 +47,15 @@ final class TabBarController: UITabBarController {
         let profileViewController = ProfileViewController(servicesAssembly: servicesAssembly)
         profileViewController.tabBarItem = profileTabBarItem
         
-        let catalogController = CatalogViewController(servicesAssembly: servicesAssembly)
-        catalogController.tabBarItem = catalogTabBarItem
+        let catalogueViewController = CatalogueViewController(servicesAssembly: servicesAssembly)
+        catalogueViewController.tabBarItem = catalogueTabBarItem
         
         let cartViewController = CartViewController(servicesAssembly: servicesAssembly)
         cartViewController.tabBarItem = cartTabBarItem
         
-        let statisticVeiwController = StatisticViewController(servicesAssembly: servicesAssembly)
-        statisticVeiwController.tabBarItem = statisticTabBarItem
+        let statisticViewController = StatisticViewController(servicesAssembly: servicesAssembly)
+        statisticViewController.tabBarItem = statisticTabBarItem
         
-        self.viewControllers = [profileViewController, catalogController, cartViewController, statisticVeiwController]
+        self.viewControllers = [profileViewController, catalogueViewController, cartViewController, statisticViewController]
     }
 }

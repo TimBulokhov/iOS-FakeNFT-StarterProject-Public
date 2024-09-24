@@ -22,11 +22,7 @@ final class MyNftRatingImageView: UIImageView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         ratingImageViews.removeAll()
-        ratingImageViews.append(firstNftImageView)
-        ratingImageViews.append(secondNftImageView)
-        ratingImageViews.append(thirdNftImageView)
-        ratingImageViews.append(fourthNftImageView)
-        ratingImageViews.append(fifthNftImageView)
+        ratingImageViews = [firstNftImageView, secondNftImageView, thirdNftImageView, fourthNftImageView, fifthNftImageView]
         viewAddImageViews()
         configImageVeiwsConstraints()
         setImageViewsContentMode()

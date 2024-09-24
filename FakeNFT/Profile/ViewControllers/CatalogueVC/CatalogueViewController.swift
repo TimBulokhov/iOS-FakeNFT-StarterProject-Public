@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CatalogViewController: UIViewController {
+final class CatalogueViewController: UIViewController {
 
     let servicesAssembly: ServicesAssembly
 

@@ -9,20 +9,87 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
-    private lazy var profileAvatar = UIImageView(image: UIImage(named: "avatarPlug"))
-    private lazy var profileName = UILabel()
-    private lazy var profileDescription = UITextView()
-    private lazy var myNftTableView = UITableView()
+    private lazy var profileAvatar: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "avatarPlug")
+        view.layer.masksToBounds = true
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 35
+        view.contentMode = .scaleAspectFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var profileName: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.font = UIFont.headline3
+        label.text = "Timofey Bulokhov"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var profileDescription: UITextView = {
+        let text = UITextView()
+        text.backgroundColor = .clear
+        text.isEditable = false
+        text.isScrollEnabled = false
+        text.sizeToFit()
+        text.textContainer.lineFragmentPadding = 0
+        text.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        text.textAlignment = .left
+        text.textContainer.maximumNumberOfLines = 5
+        
+        let mockText = "Something looks like description ✅"
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing =  3
+        let attributes = [NSAttributedString.Key.paragraphStyle : style, .foregroundColor: UIColor(named: "YPBlack"), .font: UIFont.caption2
+        ]
+        
+        text.attributedText = NSAttributedString(string: mockText, attributes: attributes as [NSAttributedString.Key : Any])
+        text.translatesAutoresizingMaskIntoConstraints = false
+        return text
+    }()
+    
+    private lazy var myNftTableView: UITableView = {
+        let table = UITableView()
+        table.backgroundColor = .clear
+        table.dataSource = self
+        table.delegate = self
+        table.register(MyNftTableCell.self, forCellReuseIdentifier: myNftCellIdentifier)
+        table.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1000)
+        table.translatesAutoresizingMaskIntoConstraints = false
+        return table
+    }()
+    
+    private lazy var profileEditButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = UIColor(named: "YPBlack")
+        button.setImage(UIImage(named: "editButtonImage"), for: .normal)
+        button.addTarget(self, action: #selector(profileEditButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var profileLinkButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(UIColor(named: "YPBlue"), for: .normal)
+        button.titleLabel?.font = UIFont.caption1
+        button.contentHorizontalAlignment = .left
+        button.addTarget(self, action: #selector(profileLinkButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     private let myNftCellIdentifier = "tableCellIdentifier"
     private let myNftTableViewCells = ["Мои NFT", "Избранные NFT", "О разработчике"]
     private var nftIdArray: [String] = []
     private var favoriteNFTsId: [String] = []
-    private lazy var profileEditButton = UIButton(type: .system)
     private var profile: Profile?
     private let servicesAssembly: ServicesAssembly
     private var profileFactory: ProfileFactory?
     private var alertPresenter: AlertPresenter?
-    private lazy var profileLinkButton = UIButton()
+
     
     // MARK: Init
     
@@ -41,18 +108,7 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.addSubview(profileAvatar)
-        view.addSubview(profileName)
-        view.addSubview(profileDescription)
-        view.addSubview(myNftTableView)
-        view.addSubview(profileEditButton)
-        view.addSubview(profileLinkButton)
-        configProfileAvatar()
-        configProfileName()
-        configProfileDescription()
-        configMyNftTableView()
-        configProfileEditButton()
-        configLinkButton()
+        setupUI()
         fetchProfile()
     }
     
@@ -68,119 +124,38 @@ final class ProfileViewController: UIViewController {
         print("Link button tapped")
     }
     
-    // MARK: ProfileAvatar
+    // MARK: SetupUI
     
-    private func configProfileAvatar() {
+    private func setupUI() {
         
-        profileAvatar.layer.masksToBounds = true
-        profileAvatar.clipsToBounds = true
-        profileAvatar.layer.cornerRadius = 35
-        profileAvatar.contentMode = .scaleAspectFill
-        profileAvatar.translatesAutoresizingMaskIntoConstraints = false
+        [profileAvatar, profileName, profileDescription, myNftTableView, profileEditButton, profileLinkButton].forEach{
+                    view.addSubview($0)
+                }
         
         NSLayoutConstraint.activate([
             profileAvatar.widthAnchor.constraint(equalToConstant: 70),
             profileAvatar.heightAnchor.constraint(equalToConstant: 70),
             profileAvatar.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
-            profileAvatar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
-        ])
-    }
-    
-    // MARK: ProfileName
-    
-    private func configProfileName() {
-        profileName.textColor = UIColor(named: "YPBlack")
-        profileName.font = UIFont.headline3
-        profileName.text = "Timofey Bulokhov"
-        
-        profileName.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileAvatar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
             profileName.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
             profileName.leadingAnchor.constraint(equalTo: profileAvatar.trailingAnchor, constant: 16),
-            profileName.trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -16)
-        ])
-    }
-    
-    // MARK: ProfileDescription
-    
-    private func configProfileDescription() {
-        
-        profileDescription.backgroundColor = .clear
-        profileDescription.isEditable = false
-        profileDescription.isScrollEnabled = false
-        profileDescription.sizeToFit()
-        
-        profileDescription.textContainer.lineFragmentPadding = 0
-        profileDescription.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        profileDescription.textAlignment = .left
-        profileDescription.textContainer.maximumNumberOfLines = 5
-        
-        let text = "Something looks like description ✅"
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing =  3
-        let attributes = [NSAttributedString.Key.paragraphStyle : style,
-                          .foregroundColor: UIColor(named: "YPBlack"),
-                          .font: UIFont.caption2
-        ]
-        
-        profileDescription.attributedText = NSAttributedString(string: text, attributes: attributes as [NSAttributedString.Key : Any])
-        
-        profileDescription.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileName.trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -16),
+            
             profileDescription.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 20),
             profileDescription.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            profileDescription.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-    }
-    
-    // MARK: myNftTable
-    
-    private func configMyNftTableView() {
-        myNftTableView.backgroundColor = .clear
-        myNftTableView.dataSource = self
-        myNftTableView.delegate = self
-        myNftTableView.register(MyNftTableCell.self, forCellReuseIdentifier: myNftCellIdentifier)
-        myNftTableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1000)
-        
-        myNftTableView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileDescription.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             myNftTableView.topAnchor.constraint(equalTo: profileLinkButton.bottomAnchor, constant: 44),
             myNftTableView.bottomAnchor.constraint(equalTo: myNftTableView.topAnchor, constant: 162),
             myNftTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            myNftTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-    
-    // MARK: ProfileEditButton
-    
-    private func configProfileEditButton() {
-        
-        profileEditButton.tintColor = UIColor(named: "YPBlack")
-        profileEditButton.setImage(UIImage(named: "editButtonImage"), for: .normal)
-        profileEditButton.addTarget(self, action: #selector(profileEditButtonTapped), for: .touchUpInside)
-        profileEditButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            myNftTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
             profileEditButton.widthAnchor.constraint(equalToConstant: 42),
             profileEditButton.heightAnchor.constraint(equalToConstant: 42),
             profileEditButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 46),
-            profileEditButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9)
-        ])
-    }
-    
-    private func configLinkButton() {
-        profileLinkButton.setTitleColor(UIColor(named: "YPBlue"), for: .normal)
-        profileLinkButton.titleLabel?.font = UIFont.caption1
-        profileLinkButton.contentHorizontalAlignment = .left
-        
-        profileLinkButton.addTarget(self, action: #selector(profileLinkButtonTapped), for: .touchUpInside)
-        
-        profileLinkButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            profileEditButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
+            
             profileLinkButton.heightAnchor.constraint(equalToConstant: 20),
             profileLinkButton.topAnchor.constraint(equalTo: profileDescription.bottomAnchor, constant: 8),
             profileLinkButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16),

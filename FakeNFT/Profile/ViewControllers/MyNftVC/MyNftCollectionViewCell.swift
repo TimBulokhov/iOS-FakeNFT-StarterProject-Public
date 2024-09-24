@@ -12,16 +12,81 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     
     weak var delegate: CollectionViewCellDelegate?
     
-    private lazy var viewsContainer = UIView()
-    private lazy var nftImageView = UIImageView()
-    private lazy var nftNameLabel = UILabel()
-    private lazy var nftAuthorLabel = UILabel()
-    private lazy var nftPriceLabel = UILabel()
-    private lazy var nftLikeButton = UIButton()
+    private lazy var viewsContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.addSubview(nftImageView)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var nftImageView: UIImageView = {
+        let imageView = UIImageView()
+        if let nftImageLink = nft?.images.first {
+            imageView.kf.setImage(with: URL(string: nftImageLink), placeholder: UIImage(systemName: "photo"))
+        }
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 12
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private lazy var nftNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.textAlignment = .left
+        label.font = .bodyBold
+        nftAuthorLabel.font = .caption2
+        if let nftName = nft?.name {
+            label.text = nftName.cutString(at: " ")
+        }
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var nftAuthorLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.font = .caption2
+        if let author = nft?.author {
+            label.text = "От \(author)"
+        }
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var nftPriceLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.textAlignment = .left
+        label.numberOfLines = 2
+        label.font = .caption2
+        if let price = nft?.price {
+            let priceString = "\(price) ETH"
+            let attributedString = NSMutableAttributedString(string: "Цена" + "\n" + "\(priceString)")
+            attributedString.setFont(.bodyBold, forText: "\(priceString)")
+            label.attributedText = attributedString
+        }
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var nftLikeButton: UIButton = {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(didTapNftLikeButton), for: .touchUpInside)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = nftLikeButton.frame.height / 2
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private lazy var ratingImageView: MyNftRatingImageView = {
         let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        return MyNftRatingImageView(frame: frame)
+        let ratingView = MyNftRatingImageView(frame: frame)
+        ratingView.backgroundColor = .clear
+        ratingView.updateRatingImagesBy(nft?.rating ?? 0)
+        ratingView.translatesAutoresizingMaskIntoConstraints = false
+        return ratingView
     }()
     
     var nft: NftModel?
@@ -40,12 +105,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        configViewsContainer()
-        configNftImageView()
-        configNftLikeButton()
-        configMyNftRatingImageView()
-        configNftTextLabels()
-        configNftPriceLabel()
+        setupUI()
     }
     
     required init?(coder: NSCoder) {
@@ -58,107 +118,44 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         delegate?.cellLikeButtonTapped(self)
     }
     
-    private func configViewsContainer(){
-        viewsContainer.backgroundColor = .clear
-        viewsContainer.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(viewsContainer)
+    private func setupUI(){
+
+        contentView.addSubview(nftLikeButton)
+        viewsContainer.addSubview(ratingImageView)
+        viewsContainer.addSubview(nftNameLabel)
+        viewsContainer.addSubview(nftAuthorLabel)
+        viewsContainer.addSubview(nftPriceLabel)
         
         NSLayoutConstraint.activate([
             viewsContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
             viewsContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             viewsContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            viewsContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
-        ])
-    }
-    
-    private func configNftImageView() {
-        if let nftImageLink = nft?.images.first {
-            nftImageView.kf.setImage(with: URL(string: nftImageLink), placeholder: UIImage(systemName: "photo"))
-        }
-        nftImageView.layer.masksToBounds = true
-        nftImageView.layer.cornerRadius = 12
-        viewsContainer.addSubview(nftImageView)
-        nftImageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            viewsContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            
             nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             nftImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            nftImageView.widthAnchor.constraint(equalToConstant: contentView.frame.height)
-        ])
-    }
-    
-    private func configNftLikeButton(){
-        nftLikeButton.addTarget(self, action: #selector(didTapNftLikeButton), for: .touchUpInside)
-        nftLikeButton.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(nftLikeButton)
-        
-        NSLayoutConstraint.activate([
-            nftLikeButton.widthAnchor.constraint(equalToConstant: 40),
-            nftLikeButton.heightAnchor.constraint(equalToConstant: 40),
-            nftLikeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor),
-            nftLikeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor)
-        ])
-        nftLikeButton.layer.masksToBounds = true
-        nftLikeButton.layer.cornerRadius = nftLikeButton.frame.height / 2
-    }
-    
-    private func configMyNftRatingImageView() {
-        ratingImageView.backgroundColor = .clear
-        ratingImageView.updateRatingImagesBy(nft?.rating ?? 0)
-        ratingImageView.translatesAutoresizingMaskIntoConstraints = false
-        viewsContainer.addSubview(ratingImageView)
-        
-        NSLayoutConstraint.activate([
-            ratingImageView.widthAnchor.constraint(equalToConstant: 68),
-            ratingImageView.heightAnchor.constraint(equalToConstant: 12),
-            ratingImageView.centerYAnchor.constraint(equalTo: viewsContainer.centerYAnchor),
-            ratingImageView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20)
-        ])
-    }
-    
-    private func configNftTextLabels(){
-        nftNameLabel.textColor = UIColor(named: "YPBlack")
-        nftAuthorLabel.textColor = UIColor(named: "YPBlack")
-        nftNameLabel.textAlignment = .left
-        nftNameLabel.font = .bodyBold
-        nftAuthorLabel.font = .caption2
-        if let author = nft?.author, let nftName = nft?.name {
-            nftNameLabel.text = nftName.cutString(at: " ")
-            nftAuthorLabel.text = "От \(author)"
-        }
-        nftNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nftAuthorLabel.translatesAutoresizingMaskIntoConstraints = false
-        viewsContainer.addSubview(nftNameLabel)
-        viewsContainer.addSubview(nftAuthorLabel)
-        
-        NSLayoutConstraint.activate([
+            nftImageView.widthAnchor.constraint(equalToConstant: contentView.frame.height),
+            
             nftNameLabel.heightAnchor.constraint(equalToConstant: 22),
             nftNameLabel.leadingAnchor.constraint(equalTo: ratingImageView.leadingAnchor),
             nftNameLabel.bottomAnchor.constraint(equalTo: ratingImageView.topAnchor, constant: -4),
+            
             nftAuthorLabel.heightAnchor.constraint(equalToConstant: 20),
             nftAuthorLabel.leadingAnchor.constraint(equalTo: ratingImageView.leadingAnchor),
             nftAuthorLabel.trailingAnchor.constraint(equalTo: ratingImageView.trailingAnchor),
-            nftAuthorLabel.topAnchor.constraint(equalTo: ratingImageView.bottomAnchor, constant: 4)
-        ])
-    }
-    
-    private func configNftPriceLabel() {
-        nftPriceLabel.textColor = UIColor(named: "YPBlack")
-        nftPriceLabel.textAlignment = .left
-        nftPriceLabel.numberOfLines = 2
-        nftPriceLabel.font = .caption2
-        if let price = nft?.price {
-            let priceString = "\(price) ETH"
-            let attributedString = NSMutableAttributedString(string: "Цена" + "\n" + "\(priceString)")
-            attributedString.setFont(.bodyBold, forText: "\(priceString)")
-            nftPriceLabel.attributedText = attributedString
-        }
-        
-        nftPriceLabel.translatesAutoresizingMaskIntoConstraints = false
-        viewsContainer.addSubview(nftPriceLabel)
-        
-        NSLayoutConstraint.activate([
+            nftAuthorLabel.topAnchor.constraint(equalTo: ratingImageView.bottomAnchor, constant: 4),
+            
+            nftLikeButton.widthAnchor.constraint(equalToConstant: 40),
+            nftLikeButton.heightAnchor.constraint(equalToConstant: 40),
+            nftLikeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor),
+            nftLikeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor),
+            
+            ratingImageView.widthAnchor.constraint(equalToConstant: 68),
+            ratingImageView.heightAnchor.constraint(equalToConstant: 12),
+            ratingImageView.centerYAnchor.constraint(equalTo: viewsContainer.centerYAnchor),
+            ratingImageView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
+            
             nftPriceLabel.topAnchor.constraint(equalTo: viewsContainer.topAnchor, constant: 33),
             nftPriceLabel.bottomAnchor.constraint(equalTo: viewsContainer.bottomAnchor, constant: -33),
             nftPriceLabel.trailingAnchor.constraint(equalTo: viewsContainer.trailingAnchor),

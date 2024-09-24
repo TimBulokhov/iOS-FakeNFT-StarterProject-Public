@@ -13,12 +13,85 @@ final class MyNftViewController: UIViewController {
     private var nftFactory: NftFactory?
     private var alertPresenter: AlertPresenter?
     
-    private lazy var myNftTitleLabel = UILabel()
-    private lazy var topViewsContainer = UIView()
-    private lazy var emptyNftLabel = UILabel()
-    private lazy var nftSortingButton = UIButton()
-    private lazy var nftCloseButton = UIButton()
-    private lazy var nftCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private lazy var myNftTitleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.isHidden = true
+        label.text = "Мои NFT"
+        label.font = UIFont.bodyBold
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var topViewsContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "YPWhite")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var emptyNftLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlack")
+        label.isHidden = true
+        label.text = "У вас ещё нет NFT"
+        label.textAlignment = .center
+        label.font = .bodyBold
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var nftSortingButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "sortButtonImage")
+        button.tintColor = UIColor(named: "YPBlack")
+        button.isHidden = true
+        button.setImage(image, for: .normal)
+        button.addTarget(self, action: #selector(nftSortingButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var nftCloseButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(systemName: "chevron.backward")
+        button.tintColor = UIColor(named: "YPBlack")
+        button.setImage(image, for: .normal)
+        button.addTarget(self, action: #selector(nftCloseButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var nftCollectionView: UICollectionView = {
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.dataSource = self
+        collection.delegate = self
+        collection.backgroundColor = .clear
+        collection.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
+        collection.translatesAutoresizingMaskIntoConstraints = false
+        return collection
+    }()
+    
+    private let warningLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(named: "YPBlue")
+        label.backgroundColor = UIColor(named: "YPBlack")?.withAlphaComponent(0.7)
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.layer.masksToBounds = true
+        label.layer.cornerRadius = 16
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let warningLabelContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "YPWhite")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let nftCollectionViewCellIdentifier = "nftCollectionCellIdentifier"
     
     private var nftResult: [NftModel] = []
@@ -26,8 +99,6 @@ final class MyNftViewController: UIViewController {
     private var favoriteNFTsId: [String]
     private let params = GeomitricParams(cellCount: 1, leftInset: 16, rightInset: 16, cellSpacing: 0)
     private var warningLabelTopConstraint: [NSLayoutConstraint] = []
-    private let warningLabel = UILabel()
-    private let warningLabelContainer = UIView()
     
     // MARK: Init
     
@@ -50,13 +121,7 @@ final class MyNftViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YPWhite")
-        configTopViewsContainer()
-        configMyNftTitleLabel()
-        configEmptyNftLabel()
-        configNftSortingButton()
-        configNftCollectionView()
-        configNftCloseButton()
-        configLimitWarningLabel()
+        setupUI()
         
         if !nftIdArray.isEmpty {
             fetchNextNFT()
@@ -73,147 +138,57 @@ final class MyNftViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    // MARK: topViewsContainer
+    // MARK: setupUI
     
-    private func configTopViewsContainer() {
-        topViewsContainer.backgroundColor = UIColor(named: "YPWhite")
-        topViewsContainer.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(topViewsContainer)
+    private func setupUI() {
+        
+        [topViewsContainer, myNftTitleLabel, emptyNftLabel, nftSortingButton, nftCloseButton, nftCollectionView, warningLabel, warningLabelContainer].forEach{
+            view.addSubview($0)
+        }
+        
+        let constraint = warningLabel.topAnchor.constraint(equalTo: warningLabelContainer.topAnchor)
+        warningLabelTopConstraint.append(constraint)
+        warningLabelTopConstraint.first?.isActive = true
         
         NSLayoutConstraint.activate([
             topViewsContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             topViewsContainer.heightAnchor.constraint(equalToConstant: 42),
             topViewsContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             topViewsContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        ])
-    }
-    
-    // MARK: myNftTitleLabel
-    
-    private func configMyNftTitleLabel(){
-        myNftTitleLabel.textColor = UIColor(named: "YPBlack")
-        myNftTitleLabel.isHidden = true
-        myNftTitleLabel.text = "Мои NFT"
-        myNftTitleLabel.font = UIFont.bodyBold
-        
-        myNftTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(myNftTitleLabel)
-        
-        NSLayoutConstraint.activate([
+            
             myNftTitleLabel.centerYAnchor.constraint(equalTo: topViewsContainer.centerYAnchor),
-            myNftTitleLabel.centerXAnchor.constraint(equalTo: topViewsContainer.centerXAnchor)
-        ])
-    }
-    
-    // MARK: emptyNftLabel
-    
-    private func configEmptyNftLabel(){
-        emptyNftLabel.textColor = UIColor(named: "YPBlack")
-        emptyNftLabel.isHidden = true
-        
-        emptyNftLabel.text = "У вас ещё нет NFT"
-        emptyNftLabel.textAlignment = .center
-        emptyNftLabel.font = .bodyBold
-        emptyNftLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(emptyNftLabel)
-        
-        NSLayoutConstraint.activate([
+            myNftTitleLabel.centerXAnchor.constraint(equalTo: topViewsContainer.centerXAnchor),
+            
             emptyNftLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             emptyNftLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 16),
             emptyNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 30)
-        ])
-    }
-    
-    // MARK: nftSortingButton
-    
-    private func configNftSortingButton() {
-        let image = UIImage(named: "sortButtonImage")
-        nftSortingButton.tintColor = UIColor(named: "YPBlack")
-        nftSortingButton.isHidden = true
-        
-        nftSortingButton.setImage(image, for: .normal)
-        nftSortingButton.addTarget(self, action: #selector(nftSortingButtonTapped), for: .touchUpInside)
-        
-        nftSortingButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(nftSortingButton)
-        
-        NSLayoutConstraint.activate([
+            emptyNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 30),
+            
             nftSortingButton.widthAnchor.constraint(equalToConstant: 24),
             nftSortingButton.heightAnchor.constraint(equalToConstant: 24),
             nftSortingButton.centerYAnchor.constraint(equalTo: topViewsContainer.centerYAnchor),
-            nftSortingButton.trailingAnchor.constraint(equalTo: topViewsContainer.trailingAnchor, constant: -9)
-        ])
-    }
-    
-    // MARK: nftCollectionView
-    
-    private func configNftCollectionView() {
-        nftCollectionView.dataSource = self
-        nftCollectionView.delegate = self
-        nftCollectionView.backgroundColor = .clear
-        
-        nftCollectionView.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
-        
-        nftCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(nftCollectionView)
-        
-        NSLayoutConstraint.activate([
-            nftCollectionView.topAnchor.constraint(equalTo: topViewsContainer.bottomAnchor),
-            nftCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-    
-    // MARK: nftCloseButton
-    
-    private func configNftCloseButton() {
-        let image = UIImage(systemName: "chevron.backward")
-        nftCloseButton.tintColor = UIColor(named: "YPBlack")
-        nftCloseButton.setImage(image, for: .normal)
-        nftCloseButton.addTarget(self, action: #selector(nftCloseButtonTapped), for: .touchUpInside)
-        nftCloseButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(nftCloseButton)
-        
-        NSLayoutConstraint.activate([
+            nftSortingButton.trailingAnchor.constraint(equalTo: topViewsContainer.trailingAnchor, constant: -9),
+            
             nftCloseButton.widthAnchor.constraint(equalToConstant: 24),
             nftCloseButton.heightAnchor.constraint(equalToConstant: 24),
             nftCloseButton.centerYAnchor.constraint(equalTo: topViewsContainer.centerYAnchor),
-            nftCloseButton.leadingAnchor.constraint(equalTo: topViewsContainer.leadingAnchor, constant: 9)
-        ])
-    }
-    
-    // MARK: warningLabel
-    
-    private func configLimitWarningLabel(){
-        warningLabelContainer.backgroundColor = UIColor(named: "YPWhite")
-        warningLabel.textColor = UIColor(named: "YPBlue")
-        warningLabel.backgroundColor = UIColor(named: "YPBlack")?.withAlphaComponent(0.7)
-        warningLabel.font = UIFont.systemFont(ofSize: 17)
-        warningLabel.numberOfLines = 2
-        warningLabel.textAlignment = .center
-        warningLabel.layer.masksToBounds = true
-        warningLabel.layer.cornerRadius = 16
-        
-        view.addSubview(warningLabel)
-        view.addSubview(warningLabelContainer)
-        warningLabel.translatesAutoresizingMaskIntoConstraints = false
-        warningLabelContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            nftCloseButton.leadingAnchor.constraint(equalTo: topViewsContainer.leadingAnchor, constant: 9),
+            
+            nftCollectionView.topAnchor.constraint(equalTo: topViewsContainer.bottomAnchor),
+            nftCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            warningLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            warningLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             warningLabelContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             warningLabelContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             warningLabelContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            warningLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            warningLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+             
         ])
-        let constraint = warningLabel.topAnchor.constraint(equalTo: warningLabelContainer.topAnchor)
-        warningLabelTopConstraint.append(constraint)
-        warningLabelTopConstraint.first?.isActive = true
     }
     
     private func showWarningLabel(with text: String){
