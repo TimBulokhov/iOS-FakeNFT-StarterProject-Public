@@ -349,7 +349,6 @@ extension MyNftViewController: FetchNFTAlertDelegate {
     }
 }
 
-// добавление в избранное черновик
 extension MyNftViewController: CollectionViewCellDelegate {
     func cellLikeButtonTapped(_ cell: MyNftCollectionViewCell) {
         guard let indexPath = nftCollectionView.indexPath(for: cell) else {
