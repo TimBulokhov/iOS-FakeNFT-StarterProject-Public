@@ -15,7 +15,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     private lazy var viewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
-        view.addSubview(nftImageView)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -36,7 +35,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         label.textColor = UIColor(named: "YPBlack")
         label.textAlignment = .left
         label.font = .bodyBold
-        nftAuthorLabel.font = .caption2
         if let nftName = nft?.name {
             label.text = nftName.cutString(at: " ")
         }
@@ -75,7 +73,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let button = UIButton()
         button.addTarget(self, action: #selector(didTapNftLikeButton), for: .touchUpInside)
         button.layer.masksToBounds = true
-        button.layer.cornerRadius = nftLikeButton.frame.height / 2
+        button.layer.cornerRadius = button.frame.height / 2
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -121,6 +119,8 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     private func setupUI(){
 
         contentView.addSubview(nftLikeButton)
+        
+        viewsContainer.addSubview(nftImageView)
         viewsContainer.addSubview(ratingImageView)
         viewsContainer.addSubview(nftNameLabel)
         viewsContainer.addSubview(nftAuthorLabel)
@@ -173,26 +173,4 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
 
 }
 
-// MARK: Extensions
 
-extension NSMutableAttributedString {
-    
-    func setFont(_ font: UIFont, forText text: String) {
-        let range = self.mutableString.range(of: text, options: .caseInsensitive)
-        self.addAttribute(NSAttributedString.Key.font, value: font, range: range)
-    }
-}
-
-extension String {
-    func cutString(at character: Character) -> String {
-        var newString = ""
-        for char in self {
-            if char != character {
-                newString.append(char)
-            } else {
-                break
-            }
-        }
-        return newString
-    }
-}

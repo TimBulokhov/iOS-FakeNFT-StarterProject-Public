@@ -89,7 +89,7 @@ final class ProfileViewController: UIViewController {
     private let servicesAssembly: ServicesAssembly
     private var profileFactory: ProfileFactory?
     private var alertPresenter: AlertPresenter?
-
+    
     
     // MARK: Init
     
@@ -129,8 +129,8 @@ final class ProfileViewController: UIViewController {
     private func setupUI() {
         
         [profileAvatar, profileName, profileDescription, myNftTableView, profileEditButton, profileLinkButton].forEach{
-                    view.addSubview($0)
-                }
+            view.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             profileAvatar.widthAnchor.constraint(equalToConstant: 70),
@@ -264,6 +264,17 @@ extension ProfileViewController: UITableViewDelegate {
         if indexPath.row == 0 {
             let viewController = MyNftViewController(delegate: self, nftIdArray: nftIdArray, favoriteNFTsId: favoriteNFTsId)
             viewController.modalPresentationStyle = .fullScreen
+            present(viewController, animated: true)
+            
+        } else if indexPath.row == 1 {
+            let viewController = LikedNftViewController(delegate: self, favoriteNFTsId: favoriteNFTsId)
+            viewController.modalPresentationStyle = .fullScreen
+            present(viewController, animated: true)
+            
+        } else if indexPath.row == 2,
+                  let website = profile?.website,
+                  let url = URL(string: website) {
+            let viewController = WebViewController(webViewURL: url)
             present(viewController, animated: true)
         }
     }
