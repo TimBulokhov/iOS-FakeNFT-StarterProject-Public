@@ -79,7 +79,7 @@ final class ChoosenNFTViewController: UIViewController {
         [coverImage, titleLabel, autorLabel, descriptionLabel, nftCollection].forEach{
             view.addSubview($0)
         }
-
+        
         NSLayoutConstraint.activate([
             coverImage.topAnchor.constraint(equalTo: view.topAnchor),
             coverImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -100,7 +100,7 @@ final class ChoosenNFTViewController: UIViewController {
             descriptionLabel.heightAnchor.constraint(equalToConstant: 72),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-          
+            
             nftCollection.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             nftCollection.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 24),
             nftCollection.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -177,13 +177,13 @@ extension ChoosenNFTViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-            return 9 // Отступ между элементами
-        }
-        
-        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-            return 9 // Отступ между рядами
-        }
-    
+        return 9 // Отступ между элементами
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 9 // Отступ между рядами
+    }
+    
+}
 
 
