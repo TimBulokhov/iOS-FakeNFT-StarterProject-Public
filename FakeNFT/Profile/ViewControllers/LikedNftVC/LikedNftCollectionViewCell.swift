@@ -105,7 +105,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
     
     private func setupUI(){
         
-        contentView.addSubview(viewsContainer)
         contentView.addSubview(likedNftLikeButton)
         
         viewsContainer.addSubview(likedNftImageView)
@@ -141,9 +140,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
             likedNftPriceLabel.heightAnchor.constraint(equalToConstant: 20),
             likedNftPriceLabel.topAnchor.constraint(equalTo: likedNftRatingImageView.bottomAnchor, constant: 8),
             likedNftPriceLabel.leadingAnchor.constraint(equalTo: likedNftRatingImageView.leadingAnchor)
-            
-            
-            
             
         ])
     }

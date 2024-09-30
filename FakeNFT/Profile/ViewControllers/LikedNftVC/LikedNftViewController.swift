@@ -186,13 +186,8 @@ final class LikedNftViewController: UIViewController {
 extension LikedNftViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if nftResult.isEmpty {
-            emptyLikedNftLabel.isHidden = false
-            likedNftTitleLabel.isHidden = true
-        } else {
-            emptyLikedNftLabel.isHidden = true
-            likedNftTitleLabel.isHidden = false
-        }
+        emptyLikedNftLabel.isHidden = !nftResult.isEmpty
+        likedNftTitleLabel.isHidden = nftResult.isEmpty
         return nftResult.count
     }
     
@@ -208,6 +203,8 @@ extension LikedNftViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: Extensions
+
 extension LikedNftViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -220,6 +217,8 @@ extension LikedNftViewController: UICollectionViewDelegateFlowLayout {
         return 0
     }
 }
+
+// MARK: Extensions
 
 extension LikedNftViewController: NFTFactoryDelegate {
     
@@ -288,6 +287,8 @@ extension LikedNftViewController: NFTFactoryDelegate {
     }
 }
 
+// MARK: Extensions
+
 extension LikedNftViewController: FetchNFTAlertDelegate {
     
     func tryToReloadNFT() {
@@ -304,6 +305,8 @@ extension LikedNftViewController: FetchNFTAlertDelegate {
         emptyLikedNftLabel.text = "Не удалось получить NFT"
     }
 }
+
+// MARK: Extensions
 
 extension LikedNftViewController: CollectionViewCellDelegate {
     
