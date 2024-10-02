@@ -15,7 +15,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
     private lazy var viewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -26,7 +25,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
         }
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 12
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -38,7 +36,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
         if let nftName = nft?.name {
             label.text = nftName.cutString(at: " ")
         }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -51,7 +48,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
         if let price = nft?.price {
             label.text = "\(price) ETH"
         }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -60,7 +56,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
         button.addTarget(self, action: #selector(didTapLikeButton), for: .touchUpInside)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = button.frame.height / 2
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -69,7 +64,6 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
         let ratingView = MyNftRatingImageView(frame: frame)
         ratingView.backgroundColor = .clear
         ratingView.updateRatingImagesBy(nft?.rating ?? 0)
-        ratingView.translatesAutoresizingMaskIntoConstraints = false
         return ratingView
     }()
     
@@ -105,12 +99,15 @@ final class LikedNftCollectionViewCell: UICollectionViewCell {
     
     private func setupUI(){
         
-        contentView.addSubview(likedNftLikeButton)
+        [viewsContainer, likedNftLikeButton].forEach {
+                    $0.translatesAutoresizingMaskIntoConstraints = false
+                    contentView.addSubview($0)
+                }
         
-        viewsContainer.addSubview(likedNftImageView)
-        viewsContainer.addSubview(likedNftRatingImageView)
-        viewsContainer.addSubview(likedNftNameLabel)
-        viewsContainer.addSubview(likedNftPriceLabel)
+        [likedNftImageView, likedNftRatingImageView, likedNftNameLabel, likedNftPriceLabel].forEach {
+                    $0.translatesAutoresizingMaskIntoConstraints = false
+                    viewsContainer.addSubview($0)
+                }
         
         NSLayoutConstraint.activate([
             viewsContainer.topAnchor.constraint(equalTo: contentView.topAnchor),

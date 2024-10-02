@@ -16,7 +16,6 @@ final class ProfileViewController: UIViewController {
         view.clipsToBounds = true
         view.layer.cornerRadius = 35
         view.contentMode = .scaleAspectFill
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -25,7 +24,6 @@ final class ProfileViewController: UIViewController {
         label.textColor = UIColor(named: "YPBlack")
         label.font = UIFont.headline3
         label.text = "Timofey Bulokhov"
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -47,7 +45,6 @@ final class ProfileViewController: UIViewController {
         ]
         
         text.attributedText = NSAttributedString(string: mockText, attributes: attributes as [NSAttributedString.Key : Any])
-        text.translatesAutoresizingMaskIntoConstraints = false
         return text
     }()
     
@@ -58,7 +55,6 @@ final class ProfileViewController: UIViewController {
         table.delegate = self
         table.register(MyNftTableCell.self, forCellReuseIdentifier: myNftCellIdentifier)
         table.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 1000)
-        table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
     
@@ -67,7 +63,6 @@ final class ProfileViewController: UIViewController {
         button.tintColor = UIColor(named: "YPBlack")
         button.setImage(UIImage(named: "editButtonImage"), for: .normal)
         button.addTarget(self, action: #selector(profileEditButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -77,7 +72,6 @@ final class ProfileViewController: UIViewController {
         button.titleLabel?.font = UIFont.caption1
         button.contentHorizontalAlignment = .left
         button.addTarget(self, action: #selector(profileLinkButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -129,6 +123,7 @@ final class ProfileViewController: UIViewController {
     private func setupUI() {
         
         [profileAvatar, profileName, profileDescription, myNftTableView, profileEditButton, profileLinkButton].forEach{
+            $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         

@@ -23,7 +23,6 @@ final class LikedNftViewController: UIViewController {
     private lazy var topViewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -32,7 +31,6 @@ final class LikedNftViewController: UIViewController {
         label.textColor = UIColor(named: "YPBlack")
         label.text = "Избранные NFT"
         label.font = UIFont.bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -42,7 +40,6 @@ final class LikedNftViewController: UIViewController {
         label.text = "У Вас ещё нет избранных NFT"
         label.textAlignment = .center
         label.font = .bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -53,7 +50,6 @@ final class LikedNftViewController: UIViewController {
         collection.backgroundColor = .clear
         collection.contentInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         collection.register(LikedNftCollectionViewCell.self, forCellWithReuseIdentifier: likedNftCollectionCellIdentifier)
-        collection.translatesAutoresizingMaskIntoConstraints = false
         return collection
     }()
     
@@ -66,14 +62,12 @@ final class LikedNftViewController: UIViewController {
         label.textAlignment = .center
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 10
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let likedNftWarningLabelContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -83,7 +77,6 @@ final class LikedNftViewController: UIViewController {
         button.tintColor = UIColor(named: "YPBlack")
         button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(closeControllerButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -120,6 +113,7 @@ final class LikedNftViewController: UIViewController {
     private func setupUI() {
         
         [topViewsContainer, likedNftTitleLabel, emptyLikedNftLabel, likedNftCollectionView, likedNftWarningLabelContainer, likedNftWarningLabel, likedNftCloseButton ].forEach{
+            $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         

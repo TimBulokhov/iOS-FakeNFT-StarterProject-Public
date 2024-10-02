@@ -19,14 +19,12 @@ final class MyNftViewController: UIViewController {
         label.isHidden = true
         label.text = "Мои NFT"
         label.font = UIFont.bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var topViewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -34,10 +32,9 @@ final class MyNftViewController: UIViewController {
         let label = UILabel()
         label.textColor = UIColor(named: "YPBlack")
         label.isHidden = true
-        label.text = "У вас ещё нет NFT"
+        label.text = "У Вас ещё нет NFT"
         label.textAlignment = .center
         label.font = .bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -48,7 +45,6 @@ final class MyNftViewController: UIViewController {
         button.isHidden = true
         button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(nftSortingButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -58,7 +54,6 @@ final class MyNftViewController: UIViewController {
         button.tintColor = UIColor(named: "YPBlack")
         button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(nftCloseButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -68,7 +63,6 @@ final class MyNftViewController: UIViewController {
         collection.delegate = self
         collection.backgroundColor = .clear
         collection.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
-        collection.translatesAutoresizingMaskIntoConstraints = false
         return collection
     }()
     
@@ -81,14 +75,12 @@ final class MyNftViewController: UIViewController {
         label.textAlignment = .center
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 16
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let warningLabelContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -143,6 +135,7 @@ final class MyNftViewController: UIViewController {
     private func setupUI() {
         
         [topViewsContainer, myNftTitleLabel, emptyNftLabel, nftSortingButton, nftCloseButton, nftCollectionView, warningLabel, warningLabelContainer].forEach{
+            $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         
