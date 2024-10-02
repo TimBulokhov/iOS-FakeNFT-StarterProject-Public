@@ -21,7 +21,7 @@ final class UpdateNftService {
             task?.cancel()
         }
         guard let request = makeRequestBody(nftIdArray: nftIdArray, token: token) else {
-            completion(.failure(ProfileServiceError.codeError("Uknown Error")))
+            completion(.failure(ProfileServiceError.codeError("Unknown Error")))
             return
         }
         let session: URLSessionDataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in

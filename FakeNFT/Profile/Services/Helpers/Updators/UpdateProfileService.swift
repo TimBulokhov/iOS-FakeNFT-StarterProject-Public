@@ -27,7 +27,7 @@ final class UpdateProfileService {
         UpdateProfileService.profileResult = profile
         
         guard let request = makeRequestBody(profile: profile, token: token) else {
-            completion(.failure(ProfileServiceError.codeError("Uknown Error")))
+            completion(.failure(ProfileServiceError.codeError("Unknown Error")))
             return
         }
         

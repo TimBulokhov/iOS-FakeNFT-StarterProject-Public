@@ -15,8 +15,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     private lazy var viewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
-        view.addSubview(nftImageView)
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -27,7 +25,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         }
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 12
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -36,11 +33,9 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         label.textColor = UIColor(named: "YPBlack")
         label.textAlignment = .left
         label.font = .bodyBold
-        nftAuthorLabel.font = .caption2
         if let nftName = nft?.name {
             label.text = nftName.cutString(at: " ")
         }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -51,7 +46,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         if let author = nft?.author {
             label.text = "От \(author)"
         }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -67,7 +61,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
             attributedString.setFont(.bodyBold, forText: "\(priceString)")
             label.attributedText = attributedString
         }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -75,8 +68,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let button = UIButton()
         button.addTarget(self, action: #selector(didTapNftLikeButton), for: .touchUpInside)
         button.layer.masksToBounds = true
-        button.layer.cornerRadius = nftLikeButton.frame.height / 2
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = button.frame.height / 2
         return button
     }()
     
@@ -85,7 +77,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let ratingView = MyNftRatingImageView(frame: frame)
         ratingView.backgroundColor = .clear
         ratingView.updateRatingImagesBy(nft?.rating ?? 0)
-        ratingView.translatesAutoresizingMaskIntoConstraints = false
         return ratingView
     }()
     
@@ -119,12 +110,16 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupUI(){
-
-        contentView.addSubview(nftLikeButton)
-        viewsContainer.addSubview(ratingImageView)
-        viewsContainer.addSubview(nftNameLabel)
-        viewsContainer.addSubview(nftAuthorLabel)
-        viewsContainer.addSubview(nftPriceLabel)
+        
+        [viewsContainer, nftLikeButton].forEach {
+                    $0.translatesAutoresizingMaskIntoConstraints = false
+                    contentView.addSubview($0)
+                }
+        
+        [nftImageView, ratingImageView, nftNameLabel, nftAuthorLabel, nftPriceLabel].forEach {
+                    $0.translatesAutoresizingMaskIntoConstraints = false
+                    viewsContainer.addSubview($0)
+                }
         
         NSLayoutConstraint.activate([
             viewsContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -173,26 +168,4 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
 
 }
 
-// MARK: Extensions
 
-extension NSMutableAttributedString {
-    
-    func setFont(_ font: UIFont, forText text: String) {
-        let range = self.mutableString.range(of: text, options: .caseInsensitive)
-        self.addAttribute(NSAttributedString.Key.font, value: font, range: range)
-    }
-}
-
-extension String {
-    func cutString(at character: Character) -> String {
-        var newString = ""
-        for char in self {
-            if char != character {
-                newString.append(char)
-            } else {
-                break
-            }
-        }
-        return newString
-    }
-}
