@@ -19,7 +19,7 @@ final class TabBarController: UITabBarController {
     
     private func createTabBar() {
         view.backgroundColor = .systemBackground
-        let catalogueVC = UINavigationController(rootViewController: CatalogueViewController(servicesAssembly: servicesAssembly))
+        let catalogueVC = UINavigationController(rootViewController: CatalogueViewController())
         catalogueVC.tabBarItem = UITabBarItem(
             title: "Каталог",
             image: UIImage(named: "Catalogue"),
