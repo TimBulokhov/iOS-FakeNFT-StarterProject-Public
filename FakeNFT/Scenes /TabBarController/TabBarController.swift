@@ -1,16 +1,25 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-   // var servicesAssembly: ServicesAssembly!
+    private var servicesAssembly: ServicesAssembly
     
     override func viewDidLoad() {
         super.viewDidLoad()
         createTabBar()
     }
     
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not beenn implementad")
+    }
+    
     private func createTabBar() {
         view.backgroundColor = .systemBackground
-        let catalogueVC = UINavigationController(rootViewController: CatalogueViewController())
+        let catalogueVC = UINavigationController(rootViewController: CatalogueViewController(servicesAssembly: servicesAssembly))
         catalogueVC.tabBarItem = UITabBarItem(
             title: "Каталог",
             image: UIImage(named: "Catalogue"),
@@ -41,10 +50,10 @@ final class TabBarController: UITabBarController {
         
         
         viewControllers = [profileVC, catalogueVC, basketVC, statisticVC]
-        self.tabBar.tintColor = .systemBlue
-        self.tabBar.unselectedItemTintColor = .black
-        self.tabBar.shadowImage = UIImage()
-        self.tabBar.backgroundImage = UIImage()
-        self.tabBar.backgroundColor = .white
+        tabBar.tintColor = .systemBlue
+        tabBar.unselectedItemTintColor = .black
+        tabBar.shadowImage = UIImage()
+        tabBar.backgroundImage = UIImage()
+        tabBar.backgroundColor = .white
     }
 }
