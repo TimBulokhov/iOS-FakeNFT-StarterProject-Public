@@ -7,25 +7,15 @@
 
 import Foundation
 import UIKit
+import ProgressHUD
+import Kingfisher
+
 
 final class CatalogueViewController: UIViewController {
-    
-    let servicesAssembly: ServicesAssembly
-    
-    init(servicesAssembly: ServicesAssembly) {
-        self.servicesAssembly = servicesAssembly
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private let image: UIImage = {
-        let image = UIImage(named: "PeachPlaceholder")
-        return image ?? UIImage()
-    }()
-    
+    private var catalogueNFT: [CollectionNFTResult] = []
+    private let catalogueService = CatalogueService.shared
+    private let choosenVC = ChoosenNFTViewController()
+    let token = RequestConstants.token
     private let sortButton: UIBarButtonItem = {
         let button = UIBarButtonItem()
         button.isEnabled = true
@@ -54,7 +44,26 @@ final class CatalogueViewController: UIViewController {
         setupUI()
         sortButton.target = self
         sortButton.action = #selector(showSortWindow(_:))
-        
+        fetchNFTCollections()
+    }
+    
+    private func fetchNFTCollections() {
+        ProgressHUD.show()
+        self.catalogueService.fecthCatalogues(token) { [weak self] result in
+            guard let self = self else {return}
+            switch result {
+            case .success(let catalog):
+                self.catalogueNFT = catalog
+         //       print("\(self.catalogueNFT)")
+                DispatchQueue.main.async {
+                    self.catalogueTableView.reloadData()
+                    self.catalogueTableView.layoutIfNeeded()
+                    ProgressHUD.dismiss()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
     
     private func createNavigation() {
@@ -69,6 +78,7 @@ final class CatalogueViewController: UIViewController {
     private func setupUI() {
         catalogueTableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(catalogueTableView)
+        catalogueTableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 47, right: 0)
         NSLayoutConstraint.activate([
             catalogueTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             catalogueTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -80,8 +90,13 @@ final class CatalogueViewController: UIViewController {
     @objc private func showSortWindow(_ sender: UIBarButtonItem) {
         let alert = AlertVC(title: "Сортировка", message: .none, preferredStyle: .actionSheet)
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
-        let sortByTitle = UIAlertAction(title: "По названию", style: .default, handler: nil)
-        let sortByCount = UIAlertAction(title: "По количеству NFT", style: .default, handler: nil)
+        let sortByTitle = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
+            self?.sortCatalogueByName()
+        }
+        
+        let sortByCount = UIAlertAction(title: "По количеству NFT", style: .default) { [weak self] _ in
+            self?.sortCatalogueByNFTCount()
+        }
         alert.setCustomColor(UIColor.black.withAlphaComponent(0.5))
         alert.addAction(cancelAction)
         alert.addAction(sortByTitle)
@@ -89,8 +104,25 @@ final class CatalogueViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showChoosenNFT() {
+    private func sortCatalogueByName() {
+        catalogueNFT.sort { $0.name.lowercased() < $1.name.lowercased() }
+        catalogueTableView.reloadData()
+    }
+    
+    private func sortCatalogueByNFTCount() {
+        catalogueNFT.sort { $0.nfts.count > $1.nfts.count }
+        catalogueTableView.reloadData() 
+    }
+    
+    private func showChoosenNFT(whithURL url: URL, whithAutor autor: String, whithDescription description: String, whithTitle name: String, whithID id: String, whithNFTs nfts: [String]) {
         let choosenVC = ChoosenNFTViewController()
+        choosenVC.coverURL = url
+        choosenVC.autor = autor
+        choosenVC.descriptionCollection = description
+        choosenVC.titleCollection = name
+        choosenVC.id = id
+        choosenVC.nftArray = nfts
+        choosenVC.fetchNFTs()
         choosenVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(choosenVC, animated: true)
     }
@@ -98,73 +130,59 @@ final class CatalogueViewController: UIViewController {
 
 extension CatalogueViewController: UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        4
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: CatalogueTableViewCell.reuseIdentifier,
             for: indexPath
         ) as? CatalogueTableViewCell else {return UITableViewCell() }
         
-        switch indexPath.section {
-        case 0:
-            cell.configueCover(image: UIImage(named: "PeachPlaceholder") ?? image )
-        case 1:
-            cell.configueCover(image: UIImage(named: "BluePlaceholder") ?? image )
-        case 2:
-            cell.configueCover(image: UIImage(named: "BrownPlaceholder") ?? image )
-        case 3:
-            cell.configueCover(image: UIImage(named: "GreenPlaceholder") ?? image )
-        default:
-            cell.configueCover(image: UIImage(named: "BrownPlaceholder") ?? image )
+        let nftCollection = catalogueNFT[indexPath.section]
+        guard let encodedCover = nftCollection.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let imageURL = URL(string: encodedCover) else {
+            print("Invalid image URL: \(nftCollection.cover)")
+            return cell
         }
+        let title = nftCollection.name
+        let nftCount = nftCollection.nfts.count
+        cell.configureCell(withTitle: title, nftCount: nftCount, imageURL: imageURL)
         cell.selectionStyle = .none
         return  cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        179
+        187
     }
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        31
     }
 }
 
 extension CatalogueViewController: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let footerView = UIView()
-        let label = UILabel(frame: CGRect(x: 0, y: 4, width: tableView.frame.width, height: 25))
-        label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        switch section {
-        case 0:
-            label.text = "Peach (11)"
-        case 1:
-            label.text = "Blue (6)"
-        case 2:
-            label.text = "Brown (8)"
-        case 3:
-            label.text = ""
-            footerView.isHidden = true
-        default:
-            label.text = ""
-        }
-        footerView.addSubview(label)
-        return footerView
-    }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        47
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return catalogueNFT.count
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        showChoosenNFT()
+        let nftCollection = catalogueNFT[indexPath.section]
+        guard let encodedCover = nftCollection.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let imageURL = URL(string: encodedCover) else {
+            print("Invalid image URL: \(nftCollection.cover)")
+            return }
+        let autor = nftCollection.author
+        let description = nftCollection.description
+        let name = nftCollection.name
+        let id = nftCollection.id
+        let nfts = nftCollection.nfts
+        showChoosenNFT(whithURL: imageURL, whithAutor: autor, whithDescription: description, whithTitle: name, whithID: id, whithNFTs: nfts)
     }
 }
+
+
 
 

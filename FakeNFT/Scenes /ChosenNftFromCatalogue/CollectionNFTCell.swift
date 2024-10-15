@@ -7,12 +7,16 @@
 
 import Foundation
 import UIKit
+import Kingfisher
 
 final class CollectionNFTCell: UICollectionViewCell {
     static let reuseIdentifier = "collectionNFTCell"
     private var trashIsTapped: Bool = false
+    private var likeIstapped: Bool = false
+    private var itemId: String = ""
+    var nft: NFTListResult?
     
-    let imageView: UIImageView = {
+    let nftImage: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 12
         imageView.clipsToBounds = true
@@ -56,6 +60,16 @@ final class CollectionNFTCell: UICollectionViewCell {
         return button
     }()
     
+    
+    private let likeButton: UIButton = {
+        let like = UIButton()
+        like.setImage(UIImage(named: "likeNoActive"), for: .normal)
+        like.backgroundColor = .clear
+        like.addTarget(self, action: #selector(likeDidTapped(_: )), for: .touchUpInside)
+        like.translatesAutoresizingMaskIntoConstraints = false
+        return like
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -66,13 +80,12 @@ final class CollectionNFTCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-        [imageView, starsStackView, nameLabel, priceLabel, trashButton].forEach{contentView.addSubview($0)}
+        [nftImage, starsStackView, nameLabel, priceLabel, trashButton, likeButton].forEach{contentView.addSubview($0)}
         
         for i in 0..<maxStars {
             let starButton = UIButton()
             starButton.tag = i + 1
             starButton.setImage(UIImage(named: "starNoSelect"), for: .normal)
-            starButton.addTarget(self, action: #selector(starTapped(_:)), for: .touchUpInside)
             starButtons.append(starButton)
             starsStackView.addArrangedSubview(starButton)
             starButton.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -80,12 +93,12 @@ final class CollectionNFTCell: UICollectionViewCell {
         }
         
         NSLayoutConstraint.activate([
-            imageView.heightAnchor.constraint(equalToConstant: 108),
-            imageView.widthAnchor.constraint(equalToConstant: 108),
-            imageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            nftImage.heightAnchor.constraint(equalToConstant: 108),
+            nftImage.widthAnchor.constraint(equalToConstant: 108),
+            nftImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            nftImage.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            starsStackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
+            starsStackView.topAnchor.constraint(equalTo: nftImage.bottomAnchor, constant: 8),
             starsStackView.heightAnchor.constraint(equalToConstant: 12),
             starsStackView.widthAnchor.constraint(equalToConstant: 68),
             starsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -102,12 +115,22 @@ final class CollectionNFTCell: UICollectionViewCell {
             trashButton.heightAnchor.constraint(equalToConstant: 40),
             trashButton.widthAnchor.constraint(equalToConstant: 40),
             trashButton.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            trashButton.topAnchor.constraint(equalTo: starsStackView.bottomAnchor, constant: 4)
+            trashButton.topAnchor.constraint(equalTo: starsStackView.bottomAnchor, constant: 4),
+            
+            likeButton.heightAnchor.constraint(equalToConstant: 40),
+            likeButton.widthAnchor.constraint(equalToConstant: 40),
+            likeButton.topAnchor.constraint(equalTo: nftImage.topAnchor),
+            likeButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 68)
         ])
     }
     
-    @objc private func starTapped(_ sender: UIButton) {
-        let rating = sender.tag
+    func setupCell(data: CollectionCellModel) {
+        nftImage.kf.setImage(with: data.image)
+        nameLabel.text = data.name
+        let rating = data.rating
+        let priceString = String(format: "%.2f", data.price)
+        priceLabel.text = priceString + " ETH"
+        itemId = data.id
         for (index, button) in starButtons.enumerated() {
             if index < rating {
                 button.setImage(UIImage(named: "starSelected"), for: .normal)
@@ -125,5 +148,16 @@ final class CollectionNFTCell: UICollectionViewCell {
             trashButton.setImage(UIImage(named: "deleteButton"), for: .normal)
         }
         print("Trash button tapped")
+        //TODO: При нажатии на кнопку добавления NFT в корзину / удаления NFT из корзины производится добавление или удаление NFT из заказа (корзины). Когда будет готова корзина.
+    }
+    
+    @objc func likeDidTapped(_ sender: UIButton) {
+        likeIstapped.toggle()
+        if self.likeIstapped == false{
+            likeButton.setImage(UIImage(named: "likeNoActive"), for: .normal)
+        } else {
+            likeButton.setImage(UIImage(named: "likeActive"), for: .normal)
+            //TODO: При нажатии на сердечко производится добавление NFT в избранное / удаление NFT из избранного. Когда будетт готов Профиль.
+        }
     }
 }

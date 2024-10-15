@@ -7,15 +7,26 @@
 
 import Foundation
 import UIKit
+import ProgressHUD
+import Kingfisher
 
-final class ChoosenNFTViewController: UIViewController {
-    let nftArray: [String] = ["Archie", "Ruby", "Nacho", "Biscuit", "Daisy", "Susan", "Oreo", "Pixi", "Zoe", "Tater"
-    ]
-    private let coverImage: UIImageView = {
+final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate {
+    
+    var coverURL: URL?
+    var autor: String?
+    var descriptionCollection: String?
+    var titleCollection: String?
+    var id: String?
+    var currentInd: Int?
+    var nftArray: [String]?
+    var nftResult: [NFTListResult] = []
+    var nftWithID: NFTListResult?
+    private let token = RequestConstants.token
+    private let nftService = NFTFetchService.shared
+    let coverImage: UIImageView = {
         let image = UIImageView()
         image .layer.cornerRadius = 16
         image .isHidden = false
-        image .image = UIImage(named: "PeachCover")
         image .translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -23,7 +34,6 @@ final class ChoosenNFTViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.text = "Peach"
         label.font = UIFont.systemFont(ofSize: 22, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -43,7 +53,6 @@ final class ChoosenNFTViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = .black
         label.numberOfLines = .max
-        label.text = "Персиковый — как облака над закатным солнцем в океане. В этой коллекции совмещены трогательная нежность и живая игривость сказочных зефирных зверей"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -61,8 +70,33 @@ final class ChoosenNFTViewController: UIViewController {
         nftCollection.dataSource = self
         nftCollection.delegate = self
         setupNavigation()
+        nftService.delegate = self
         setupUI()
+        
     }
+    
+    func fetchNFTs() {
+        ProgressHUD.show()
+        nftService.fetchNFT(token) { [weak self] result in
+            switch result {
+            case .success(let nft):
+                if nft.isEmpty {
+                               print("NFTs array is empty.")
+                               return
+                           }
+                self?.nftResult = nft
+                DispatchQueue.main.async {
+                    ProgressHUD.dismiss()
+                    self?.nftCollection.reloadData()
+                    self?.nftCollection.layoutIfNeeded()
+                }
+            case .failure(let error):
+                ProgressHUD.dismiss()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     
     private func setupNavigation() {
         navigationController?.navigationBar.tintColor = .black
@@ -79,7 +113,11 @@ final class ChoosenNFTViewController: UIViewController {
         [coverImage, titleLabel, autorLabel, descriptionLabel, nftCollection].forEach{
             view.addSubview($0)
         }
-        
+        coverImage.kf.setImage(with: coverURL)
+        guard let descriptionCollection = descriptionCollection else {return}
+        descriptionLabel.text = descriptionCollection
+        guard let titleCollection = titleCollection else {return}
+        titleLabel.text = titleCollection
         NSLayoutConstraint.activate([
             coverImage.topAnchor.constraint(equalTo: view.topAnchor),
             coverImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -106,14 +144,14 @@ final class ChoosenNFTViewController: UIViewController {
             nftCollection.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             nftCollection.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
-        
-        let fullText = "Автор коллекции: John Doe"
+        guard let autor = autor else {return}
+        let fullText = "Автор коллекции: \(String(describing: autor))"
         let attributedString = NSMutableAttributedString(string: fullText)
         let prefixRange = (fullText as NSString).range(of: "Автор коллекции:")
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: prefixRange)
         attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: prefixRange)
         
-        let nameRange = (fullText as NSString).range(of: "John Doe")
+        let nameRange = (fullText as NSString).range(of: autor)
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 15, weight: .regular), range: nameRange)
         attributedString.addAttribute(.foregroundColor, value: UIColor.blue, range: nameRange)
         autorLabel.attributedText = attributedString
@@ -121,13 +159,76 @@ final class ChoosenNFTViewController: UIViewController {
         autorLabel.addGestureRecognizer(tapAutor)
     }
     
+    
+    func returnCollectionCell(for index: Int, completion: @escaping (CollectionCellModel?) -> Void) {
+        self.returnCollectionWhithID(for: index) { [weak self] nftWithID in
+            guard let self = self, let nftWithID = nftWithID else {
+                completion(nil) // Если nftWithID не удалось получить, возвращаем nil
+                return
+            }
+            
+            guard index < nftWithID.images.count else {
+                print("Invalid index or missing nftWithID")
+                completion(nil) // Возвращаем nil, если индекс вне диапазона
+                return
+            }
+            
+            // Создаем CollectionCellModel
+            let cellModel = CollectionCellModel(
+                image: nftWithID.images[index], // Здесь нужно заменить на правильный URL или обработку
+                name: nftWithID.name,
+                rating: nftWithID.rating,
+                price: nftWithID.price,
+                id: nftWithID.id
+            )
+            completion(cellModel) // Передаем созданную модель в комплишен
+        }
+    }
+    
+    
+    func returnCollectionWhithID(for index: Int, completion: @escaping (NFTListResult?) -> Void) {
+        guard !nftResult.isEmpty, index < nftResult.count else {
+               print("Index out of bounds for nftResult at index \(index)")
+               completion(nil)
+               return
+           }
+            let nftForIndex = nftResult[index]
+            let nftIDarray = nftForIndex.id
+        print("\(nftIDarray)")
+        nftService.fetchNFTWithID(token, id: nftIDarray) { [weak self] result in
+            DispatchQueue.main.async {
+                    }
+            switch result {
+            case .success(let nftWithID):
+                completion(nftWithID)
+              
+            case .failure(let error):
+                print(error.localizedDescription)
+             
+                completion(nil)
+            }
+        }
+    }
+    
+    func didFetchNFTs(_ nftResults: [NFTListResult]) {
+        nftResult = nftResults
+        DispatchQueue.main.async {
+            self.nftCollection.reloadData()
+        }
+    }
+    
+    func didFailToFetchNFTs(with error: Error) {
+        print("Ошибка загрузки NFT: \(error.localizedDescription)")
+    }
+    
+    
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
     
     @objc private func autorTapped(_ gesture:UITapGestureRecognizer) {
         let text = (autorLabel.text ?? "") as NSString
-        let nameRange = text.range(of: "John Doe")
+        let nameRange = text.range(of: autor ?? "")
         let location = gesture.location(in: autorLabel)
         let textStorage = NSTextStorage(attributedString: autorLabel.attributedText ?? NSAttributedString(string: ""))
         let layoutManager = NSLayoutManager()
@@ -150,20 +251,31 @@ final class ChoosenNFTViewController: UIViewController {
 
 extension ChoosenNFTViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        nftArray.count
+        nftResult.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CollectionNFTCell.reuseIdentifier, for: indexPath) as? CollectionNFTCell else {
-            assertionFailure("Something going wrong with custom cell creation.")
+            assertionFailure("Something went wrong with custom cell creation.")
             return UICollectionViewCell()
         }
-        cell.imageView.image = UIImage(named: nftArray[indexPath.item])
-        cell.nameLabel.text = nftArray[indexPath.item]
-        cell.priceLabel.text = "1 ETH"
+        if indexPath.row >= nftResult.count {
+                print("Index out of bounds for nftResult at index \(indexPath.row)")
+                return cell
+            }
+        returnCollectionCell(for: indexPath.row) { cellModel in
+            guard let model = cellModel else {
+                print("Не удалось получить CollectionCellModel для индекса \(indexPath.row)")
+                return
+            }
+            DispatchQueue.main.async {
+                cell.setupCell(data: model) // Заполняем ячейку данными
+            }
+        }
         return cell
     }
 }
+
 
 extension ChoosenNFTViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -177,11 +289,11 @@ extension ChoosenNFTViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 9 // Отступ между элементами
+        return 9
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 9 // Отступ между рядами
+        return 9
     }
     
 }

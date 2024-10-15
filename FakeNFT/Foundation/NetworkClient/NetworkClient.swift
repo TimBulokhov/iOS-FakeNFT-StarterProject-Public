@@ -58,6 +58,7 @@ struct DefaultNetworkClient: NetworkClient {
         let onResponse: (Result<Data, Error>) -> Void = { result in
             completionQueue.async {
                 onResponse(result)
+                print("\(result)")
             }
         }
         guard let urlRequest = create(request: request) else { return nil }
@@ -75,6 +76,7 @@ struct DefaultNetworkClient: NetworkClient {
 
             if let data = data {
                 onResponse(.success(data))
+                print("\(data)")
                 return
             } else if let error = error {
                 onResponse(.failure(NetworkClientError.urlRequestError(error)))
