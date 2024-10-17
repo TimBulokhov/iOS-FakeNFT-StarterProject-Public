@@ -8,7 +8,6 @@
 import Foundation
 
 protocol NFTFetchServiceDelegate: AnyObject {
-    func didFetchNFTs(_ nftResults: [NFTListResult])
     func didFailToFetchNFTs(with error: Error)
 }
 
@@ -16,20 +15,20 @@ final class NFTFetchService {
     weak var delegate: NFTFetchServiceDelegate?
     private let token = RequestConstants.token
     private let baseURL = RequestConstants.baseURL
-    
     static let shared = NFTFetchService()
-    
     private var task: URLSessionTask?
+    private let decoder = JSONDecoder()
+    private var isRequestInProgress = false
     
     private init() {}
     
-    func fetchNFT(_ token: String, completion: @escaping (Result<[NFTListResult],Error>) -> Void) {
+    func fetchNFT(_ token: String, id: String, completion: @escaping (Result<CollectionNFTResult,Error>) -> Void) {
         assert(Thread.isMainThread)
         if task != nil {
             task?.cancel()
         }
         
-        guard let request = makeRequest(token: token) else {
+        guard let request = makeRequest(token: token, id: id) else {
             completion(.failure(NetworkClientError.urlSessionError))
             return
         }
@@ -49,8 +48,7 @@ final class NFTFetchService {
                 }
                 if let data = data {
                     do {
-                        let result = try JSONDecoder().decode([NFTListResult].self, from: data)
-                        self.delegate?.didFetchNFTs(result)
+                        let result = try decoder.decode(CollectionNFTResult.self, from: data)
                         completion(.success(result))
                     } catch {
                         self.delegate?.didFailToFetchNFTs(with: error)
@@ -65,21 +63,25 @@ final class NFTFetchService {
     
     func fetchNFTWithID(_ token: String, id: String, completion: @escaping (Result<NFTListResult,Error>) -> Void) {
         assert(Thread.isMainThread)
-        if task != nil {
-            task?.cancel()
+        if isRequestInProgress {
+            return
         }
+        isRequestInProgress = true
         
         guard let request = makeRequestBodywhithID(token: token, id: id) else {
             completion(.failure(NetworkClientError.urlSessionError))
+            isRequestInProgress = false
             return
         }
         
         let session: URLSessionDataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
-                self.task = nil
+                isRequestInProgress = false
                 if let error = error {
+                    print("\(error)")
                     completion(.failure(NetworkClientError.urlSessionError))
+                  
                     return
                 }
                 if let response = response as? HTTPURLResponse, response.statusCode < 200 || response.statusCode  >= 300 {
@@ -89,7 +91,7 @@ final class NFTFetchService {
                 }
                 if let data = data {
                     do {
-                        let result = try JSONDecoder().decode(NFTListResult.self, from: data)
+                        let result = try decoder.decode(NFTListResult.self, from: data)
                         completion(.success(result))
                     } catch {
                         completion(.failure(NetworkClientError.parsingError))
@@ -114,12 +116,12 @@ final class NFTFetchService {
         return request
     }
     
-    private func makeRequest(token: String) -> URLRequest? {
-        let nftRequest = RequestNFT()
-        guard let url = nftRequest.endpoint else {
+    private func makeRequest(token: String, id: String) -> URLRequest? {
+        guard let url = URL(string: "\(RequestConstants.baseURL)/api/v1/collections/\(id)") else {
             assertionFailure("Failed to create URL")
             return nil
         }
+               
         var request: URLRequest = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue(token, forHTTPHeaderField: "X-Practicum-Mobile-Token")

@@ -11,7 +11,6 @@ import ProgressHUD
 import Kingfisher
 
 final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate {
-    
     var coverURL: URL?
     var autor: String?
     var descriptionCollection: String?
@@ -19,10 +18,11 @@ final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate 
     var id: String?
     var currentInd: Int?
     var nftArray: [String]?
-    var nftResult: [NFTListResult] = []
+    var nftResult: CollectionNFTResult?
     var nftWithID: NFTListResult?
     private let token = RequestConstants.token
     private let nftService = NFTFetchService.shared
+    private var nftListID = " "
     let coverImage: UIImageView = {
         let image = UIImageView()
         image .layer.cornerRadius = 16
@@ -72,23 +72,27 @@ final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate 
         setupNavigation()
         nftService.delegate = self
         setupUI()
-        
     }
     
-    func fetchNFTs() {
+    func fetchNFTs(id: String) {
         ProgressHUD.show()
-        nftService.fetchNFT(token) { [weak self] result in
+        nftService.fetchNFT(token, id: id) { [weak self] result in
             switch result {
             case .success(let nft):
-                if nft.isEmpty {
-                               print("NFTs array is empty.")
-                               return
-                           }
-                self?.nftResult = nft
-                DispatchQueue.main.async {
-                    ProgressHUD.dismiss()
+                let nftResult = CollectionNFTResult(
+                    createdAt: nft.createdAt,
+                    name: nft.name,
+                    cover: nft.cover,
+                    nfts: nft.nfts,
+                    description: nft.description,
+                    author: nft.author,
+                    id: nft.id)
+                print("\(nftResult)")
+                ProgressHUD.dismiss()
+                self?.nftCollection.layoutIfNeeded()
+                for nft in nftResult.nfts {
+                    self?.fetchNftWhithIDCollection(id: nft)
                     self?.nftCollection.reloadData()
-                    self?.nftCollection.layoutIfNeeded()
                 }
             case .failure(let error):
                 ProgressHUD.dismiss()
@@ -97,6 +101,22 @@ final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate 
         }
     }
     
+    private func fetchNftWhithIDCollection (id: String) {
+        nftService.fetchNFTWithID(token, id: id) { result in
+            DispatchQueue.main.async {
+                ProgressHUD.show()
+                switch result {
+                case .success(let nftWithID):
+                    self.nftWithID = nftWithID
+                    self.nftCollection.reloadData()
+                    ProgressHUD.dismiss()
+                case .failure(let error):
+                    print(error.localizedDescription)
+                    ProgressHUD.dismiss()
+                }
+            }
+        }
+    }
     
     private func setupNavigation() {
         navigationController?.navigationBar.tintColor = .black
@@ -159,61 +179,26 @@ final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate 
         autorLabel.addGestureRecognizer(tapAutor)
     }
     
-    
     func returnCollectionCell(for index: Int, completion: @escaping (CollectionCellModel?) -> Void) {
-        self.returnCollectionWhithID(for: index) { [weak self] nftWithID in
-            guard let self = self, let nftWithID = nftWithID else {
-                completion(nil) // Если nftWithID не удалось получить, возвращаем nil
+        if nftWithID == nil { return } else {
+            guard let nftWithID = nftWithID else {
+                completion(nil)
                 return
             }
             
             guard index < nftWithID.images.count else {
                 print("Invalid index or missing nftWithID")
-                completion(nil) // Возвращаем nil, если индекс вне диапазона
+                completion(nil)
                 return
             }
-            
-            // Создаем CollectionCellModel
             let cellModel = CollectionCellModel(
-                image: nftWithID.images[index], // Здесь нужно заменить на правильный URL или обработку
+                image: nftWithID.images[index],
                 name: nftWithID.name,
                 rating: nftWithID.rating,
                 price: nftWithID.price,
                 id: nftWithID.id
             )
-            completion(cellModel) // Передаем созданную модель в комплишен
-        }
-    }
-    
-    
-    func returnCollectionWhithID(for index: Int, completion: @escaping (NFTListResult?) -> Void) {
-        guard !nftResult.isEmpty, index < nftResult.count else {
-               print("Index out of bounds for nftResult at index \(index)")
-               completion(nil)
-               return
-           }
-            let nftForIndex = nftResult[index]
-            let nftIDarray = nftForIndex.id
-        print("\(nftIDarray)")
-        nftService.fetchNFTWithID(token, id: nftIDarray) { [weak self] result in
-            DispatchQueue.main.async {
-                    }
-            switch result {
-            case .success(let nftWithID):
-                completion(nftWithID)
-              
-            case .failure(let error):
-                print(error.localizedDescription)
-             
-                completion(nil)
-            }
-        }
-    }
-    
-    func didFetchNFTs(_ nftResults: [NFTListResult]) {
-        nftResult = nftResults
-        DispatchQueue.main.async {
-            self.nftCollection.reloadData()
+            completion(cellModel)
         }
     }
     
@@ -251,7 +236,7 @@ final class ChoosenNFTViewController: UIViewController, NFTFetchServiceDelegate 
 
 extension ChoosenNFTViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        nftResult.count
+        nftArray?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -259,23 +244,19 @@ extension ChoosenNFTViewController: UICollectionViewDataSource {
             assertionFailure("Something went wrong with custom cell creation.")
             return UICollectionViewCell()
         }
-        if indexPath.row >= nftResult.count {
-                print("Index out of bounds for nftResult at index \(indexPath.row)")
-                return cell
-            }
+        
         returnCollectionCell(for: indexPath.row) { cellModel in
             guard let model = cellModel else {
                 print("Не удалось получить CollectionCellModel для индекса \(indexPath.row)")
                 return
             }
             DispatchQueue.main.async {
-                cell.setupCell(data: model) // Заполняем ячейку данными
+                cell.setupCell(data: model)
             }
         }
         return cell
     }
 }
-
 
 extension ChoosenNFTViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -295,7 +276,6 @@ extension ChoosenNFTViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 9
     }
-    
 }
 
 

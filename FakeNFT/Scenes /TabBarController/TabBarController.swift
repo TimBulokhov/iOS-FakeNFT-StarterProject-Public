@@ -33,7 +33,6 @@ final class TabBarController: UITabBarController {
             selectedImage:  UIImage(named: "ProfileSelected")
         )
         
-        
         let basketVC = UINavigationController(rootViewController: BasketViewController())
         basketVC.tabBarItem = UITabBarItem(
             title: "Корзина" ,
@@ -47,7 +46,6 @@ final class TabBarController: UITabBarController {
             image: UIImage(named: "Statistic"),
             selectedImage: UIImage(named: "StatisticSelected")
         )
-        
         
         viewControllers = [profileVC, catalogueVC, basketVC, statisticVC]
         tabBar.tintColor = .systemBlue

@@ -9,7 +9,7 @@ import Foundation
 struct RequestNFT: NetworkRequest {
     
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/api/v1/nft")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/collections")
     }
     var dto: Dto?
 }

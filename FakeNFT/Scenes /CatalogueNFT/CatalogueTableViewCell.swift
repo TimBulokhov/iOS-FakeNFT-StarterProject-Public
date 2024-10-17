@@ -44,7 +44,7 @@ final class CatalogueTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         NSLayoutConstraint.activate([
             coverOfSection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-           
+            
             coverOfSection.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             coverOfSection.topAnchor.constraint(equalTo: contentView.topAnchor),
             coverOfSection.heightAnchor.constraint(equalToConstant: 140),
