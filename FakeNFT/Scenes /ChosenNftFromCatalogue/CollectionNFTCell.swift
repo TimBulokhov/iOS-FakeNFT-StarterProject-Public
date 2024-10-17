@@ -60,7 +60,6 @@ final class CollectionNFTCell: UICollectionViewCell {
         return button
     }()
     
-    
     private let likeButton: UIButton = {
         let like = UIButton()
         like.setImage(UIImage(named: "likeNoActive"), for: .normal)

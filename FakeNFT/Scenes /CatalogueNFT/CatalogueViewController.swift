@@ -54,7 +54,6 @@ final class CatalogueViewController: UIViewController {
             switch result {
             case .success(let catalog):
                 self.catalogueNFT = catalog
-         //       print("\(self.catalogueNFT)")
                 DispatchQueue.main.async {
                     self.catalogueTableView.reloadData()
                     self.catalogueTableView.layoutIfNeeded()
@@ -62,6 +61,7 @@ final class CatalogueViewController: UIViewController {
                 }
             case .failure(let error):
                 print(error.localizedDescription)
+                ProgressHUD.dismiss()
             }
         }
     }
@@ -111,7 +111,7 @@ final class CatalogueViewController: UIViewController {
     
     private func sortCatalogueByNFTCount() {
         catalogueNFT.sort { $0.nfts.count > $1.nfts.count }
-        catalogueTableView.reloadData() 
+        catalogueTableView.reloadData()
     }
     
     private func showChoosenNFT(whithURL url: URL, whithAutor autor: String, whithDescription description: String, whithTitle name: String, whithID id: String, whithNFTs nfts: [String]) {
@@ -122,7 +122,7 @@ final class CatalogueViewController: UIViewController {
         choosenVC.titleCollection = name
         choosenVC.id = id
         choosenVC.nftArray = nfts
-        choosenVC.fetchNFTs()
+        choosenVC.fetchNFTs(id: id)
         choosenVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(choosenVC, animated: true)
     }
@@ -153,9 +153,8 @@ extension CatalogueViewController: UITableViewDataSource {
         187
     }
     
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        1
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -174,12 +173,12 @@ extension CatalogueViewController: UITableViewDelegate {
               let imageURL = URL(string: encodedCover) else {
             print("Invalid image URL: \(nftCollection.cover)")
             return }
-        let autor = nftCollection.author
-        let description = nftCollection.description
-        let name = nftCollection.name
-        let id = nftCollection.id
-        let nfts = nftCollection.nfts
-        showChoosenNFT(whithURL: imageURL, whithAutor: autor, whithDescription: description, whithTitle: name, whithID: id, whithNFTs: nfts)
+        showChoosenNFT(whithURL: imageURL,
+                       whithAutor: nftCollection.author,
+                       whithDescription: nftCollection.description,
+                       whithTitle: nftCollection.name,
+                       whithID: nftCollection.id,
+                       whithNFTs: nftCollection.nfts)
     }
 }
 
