@@ -1,3 +1,7 @@
+# Скринкаст проекта
+https://youtu.be/DqgCbbqxUrY
+
+
 # ТЗ мобильного приложения FakeNFT
 
 # Ссылки
