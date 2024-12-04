@@ -8,9 +8,9 @@
 import UIKit
 import Kingfisher
 
-final class MyNftCollectionViewCell: UICollectionViewCell {
+final class MyNftTableViewCell: UITableViewCell {
     
-    weak var delegate: CollectionViewCellDelegate?
+    weak var delegate: TableViewCellDelegate?
     
     private lazy var viewsContainer: UIView = {
         let view = UIView()
@@ -82,12 +82,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     
     var nft: NftModel?
     
-    // MARK: Init
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
     override func prepareForReuse() {
         super.prepareForReuse()
         nftImageView.kf.indicatorType = .activity
@@ -112,14 +106,14 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     private func setupUI(){
         
         [viewsContainer, nftLikeButton].forEach {
-                    $0.translatesAutoresizingMaskIntoConstraints = false
-                    contentView.addSubview($0)
-                }
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview($0)
+        }
         
         [nftImageView, ratingImageView, nftNameLabel, nftAuthorLabel, nftPriceLabel].forEach {
-                    $0.translatesAutoresizingMaskIntoConstraints = false
-                    viewsContainer.addSubview($0)
-                }
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            viewsContainer.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             viewsContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -165,7 +159,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     func removeLikeImageForLikeButton() {
         nftLikeButton.setImage(UIImage(named: "whiteHeart"), for: .normal)
     }
-
+    
 }
 
 
