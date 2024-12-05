@@ -57,13 +57,13 @@ final class MyNftViewController: UIViewController {
         return button
     }()
     
-    private lazy var nftTableView: UITableView = {
-        let table = UITableView()
-        table.dataSource = self
-        table.delegate = self
-        table.backgroundColor = .clear
-        table.register(MyNftTableViewCell.self, forCellReuseIdentifier: nftTableViewCellIdentifier)
-        return table
+    private lazy var nftCollectionView: UICollectionView = {
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.dataSource = self
+        collection.delegate = self
+        collection.backgroundColor = .clear
+        collection.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
+        return collection
     }()
     
     private let warningLabel: UILabel = {
@@ -84,7 +84,7 @@ final class MyNftViewController: UIViewController {
         return view
     }()
     
-    private let nftTableViewCellIdentifier = "nftTableCellIdentifier"
+    private let nftCollectionViewCellIdentifier = "nftCollectionCellIdentifier"
     
     private var nftResult: [NftModel] = []
     private var nftIdArray: [String]
@@ -118,7 +118,7 @@ final class MyNftViewController: UIViewController {
         if !nftIdArray.isEmpty {
             fetchNextNFT()
         }
-
+        
         
     }
     
@@ -134,7 +134,7 @@ final class MyNftViewController: UIViewController {
     
     private func setupUI() {
         
-        [topViewsContainer, myNftTitleLabel, emptyNftLabel, nftSortingButton, nftCloseButton, nftTableView, warningLabel, warningLabelContainer].forEach{
+        [topViewsContainer, myNftTitleLabel, emptyNftLabel, nftSortingButton, nftCloseButton, nftCollectionView, warningLabel, warningLabelContainer].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -167,10 +167,10 @@ final class MyNftViewController: UIViewController {
             nftCloseButton.centerYAnchor.constraint(equalTo: topViewsContainer.centerYAnchor),
             nftCloseButton.leadingAnchor.constraint(equalTo: topViewsContainer.leadingAnchor, constant: 9),
             
-            nftTableView.topAnchor.constraint(equalTo: topViewsContainer.bottomAnchor),
-            nftTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            nftTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            nftTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            nftCollectionView.topAnchor.constraint(equalTo: topViewsContainer.bottomAnchor),
+            nftCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             warningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             warningLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -180,7 +180,7 @@ final class MyNftViewController: UIViewController {
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             warningLabelContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             warningLabelContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-             
+            
         ])
     }
     
@@ -200,18 +200,14 @@ final class MyNftViewController: UIViewController {
             }
         }
     }
-
+    
 }
 
 // MARK: Extensions
 
-extension MyNftViewController: UITableViewDataSource {
+extension MyNftViewController: UICollectionViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         if nftResult.isEmpty {
             emptyNftLabel.isHidden = false
         } else {
@@ -222,9 +218,13 @@ extension MyNftViewController: UITableViewDataSource {
         return nftResult.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: nftTableViewCellIdentifier, for: indexPath) as? MyNftTableViewCell else {
-            return UITableViewCell()
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nftCollectionViewCellIdentifier, for: indexPath) as? MyNftCollectionViewCell else {
+            return UICollectionViewCell()
         }
         if favoriteNFTsId.contains(nftResult[indexPath.section].id) {
             cell.setLikeImageForLikeButton()
@@ -238,13 +238,16 @@ extension MyNftViewController: UITableViewDataSource {
     }
 }
 
-extension MyNftViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        140
+extension MyNftViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let availibleSpacing = collectionView.frame.width - params.paddingWidth
+        let cellWidth = availibleSpacing / params.cellCount
+        return CGSize(width: cellWidth, height: cellWidth / 3.18)
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
 }
 
@@ -253,18 +256,24 @@ extension MyNftViewController: NFTFactoryDelegate {
     func didUpdateFavoriteNFT(_ favoriteNFTs: LikedNftModel) {
         
         delegate?.didUpdateFavoriteNFT(favoriteNFTs.likes)
-
+        
         if favoriteNFTs.likes.count > favoriteNFTsId.count {
             if let appendedNFT = favoriteNFTs.likes.first(where:{ !favoriteNFTsId.contains($0)}),
                let cellSection = nftResult.firstIndex(where: { $0.id == appendedNFT }) {
                 favoriteNFTsId = favoriteNFTs.likes
-                nftTableView.reloadData()
+                let indexPath = IndexPath(row: 0, section: cellSection)
+                let cell = nftCollectionView.cellForItem(at: indexPath)
+                let likedcell = cell as? MyNftCollectionViewCell
+                likedcell?.setLikeImageForLikeButton()
             }
         } else {
             if let removedNFT = favoriteNFTsId.first(where: { !favoriteNFTs.likes.contains($0) }),
                let cellSection = nftResult.firstIndex(where: { $0.id == removedNFT }) {
                 favoriteNFTsId = favoriteNFTs.likes
-                nftTableView.reloadData()
+                let indexPath = IndexPath(row: 0, section: cellSection)
+                let cell = nftCollectionView.cellForItem(at: indexPath)
+                let likedcell = cell as? MyNftCollectionViewCell
+                likedcell?.removeLikeImageForLikeButton()
             }
         }
     }
@@ -290,7 +299,7 @@ extension MyNftViewController: NFTFactoryDelegate {
     
     func didFailToLoadNFT(with error: ProfileServiceError) {
         UIBlockingProgressHUD.dismiss()
-        nftTableView.reloadData()
+        nftCollectionView.reloadData()
         let errorString: String
         switch error {
         case .codeError(let value):
@@ -309,7 +318,7 @@ extension MyNftViewController: NFTFactoryDelegate {
             let nextNFT = nftIdArray[nftResult.count]
             nftFactory?.loadNFT(id: nextNFT)
         } else {
-            nftTableView.reloadData()
+            nftCollectionView.reloadData()
             UIBlockingProgressHUD.dismiss()
         }
     }
@@ -335,10 +344,10 @@ extension MyNftViewController: FetchNFTAlertDelegate {
     }
 }
 
-extension MyNftViewController: TableViewCellDelegate {
+extension MyNftViewController: CollectionViewCellDelegate {
     
-    func cellLikeButtonTapped(_ cell: UITableViewCell) {
-        guard let indexPath = nftTableView.indexPath(for: cell) else {
+    func cellLikeButtonTapped(_ cell: UICollectionViewCell) {
+        guard let indexPath = nftCollectionView.indexPath(for: cell) else {
             return
         }
         let likedNftId = nftResult[indexPath.section].id
@@ -354,38 +363,53 @@ extension MyNftViewController: TableViewCellDelegate {
 }
 
 extension MyNftViewController: SortAlertDelegate {
+    
     func sortByPrice() {
         nftResult.sort(by: { $0.price < $1.price })
-        nftTableView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+        nftCollectionView.performBatchUpdates {
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: 0, section: index))
             }
-            nftTableView.reloadData()
+            nftCollectionView.reloadItems(at: indexPaths)
         }
+        print(nftResult)
     }
     
     func sortByRate() {
         nftResult.sort(by: { $0.rating > $1.rating })
-        nftTableView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+        nftCollectionView.performBatchUpdates {
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: 0, section: index))
             }
-            nftTableView.reloadData()
+            nftCollectionView.reloadItems(at: indexPaths)
         }
+        print(nftResult)
     }
     
     func sortByName() {
         nftResult.sort(by: { $0.name < $1.name })
-        nftTableView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+        let sortedNft = nftResult
+        nftCollectionView.performBatchUpdates {
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: 0, section: index))
             }
-            nftTableView.reloadData()
+            var indexSet = IndexSet()
+            
+            let rowCount = nftCollectionView.numberOfSections
+            
+            for row in 0..<rowCount {
+                
+                indexSet = [row]
+                
+                nftCollectionView.reloadSections(indexSet)
+                nftCollectionView.reloadItems(at: indexPaths)
+            }
+            print(nftResult)
         }
     }
 }
-
-
+    
+    

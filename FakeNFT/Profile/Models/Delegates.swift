@@ -31,15 +31,9 @@ protocol CollectionViewCellDelegate: AnyObject {
     func cellLikeButtonTapped(_ cell: UICollectionViewCell)
 }
 
-protocol TableViewCellDelegate: AnyObject {
-    func cellLikeButtonTapped(_ cell: UITableViewCell)
-}
-
 protocol NFTCollectionControllerDelegate: AnyObject {
     func didUpdateFavoriteNFT(_ nftIdArray: [String])
 }
-
-
 
 protocol NFTFactoryDelegate: AnyObject {
     func didRecieveNFT(_ nft: NftModel)
