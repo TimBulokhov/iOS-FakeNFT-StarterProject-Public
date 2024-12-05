@@ -390,26 +390,16 @@ extension MyNftViewController: SortAlertDelegate {
     
     func sortByName() {
         nftResult.sort(by: { $0.name < $1.name })
-        let sortedNft = nftResult
         nftCollectionView.performBatchUpdates {
             var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
                 indexPaths.append(IndexPath(item: 0, section: index))
             }
-            var indexSet = IndexSet()
-            
-            let rowCount = nftCollectionView.numberOfSections
-            
-            for row in 0..<rowCount {
-                
-                indexSet = [row]
-                
-                nftCollectionView.reloadSections(indexSet)
-                nftCollectionView.reloadItems(at: indexPaths)
-            }
-            print(nftResult)
+            nftCollectionView.reloadItems(at: indexPaths)
         }
+        print(nftResult)
     }
 }
-    
-    
+
+
+
