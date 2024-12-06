@@ -12,6 +12,8 @@ import Kingfisher
 
 
 final class CatalogueViewController: UIViewController {
+    
+    private let servicesAssembly: ServicesAssembly
     private var catalogueNFT: [CollectionNFTResult] = []
     private let catalogueService = CatalogueService.shared
     private let choosenVC = ChoosenNFTViewController()
@@ -45,6 +47,15 @@ final class CatalogueViewController: UIViewController {
         sortButton.target = self
         sortButton.action = #selector(showSortWindow(_:))
         fetchNFTCollections()
+    }
+    
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func fetchNFTCollections() {

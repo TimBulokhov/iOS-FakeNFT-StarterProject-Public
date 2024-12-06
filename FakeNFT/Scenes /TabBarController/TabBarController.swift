@@ -1,12 +1,28 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
+
     private var servicesAssembly: ServicesAssembly
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        createTabBar()
-    }
+    private let profileTabBarItem = UITabBarItem(
+        title: "Профиль",
+        image: UIImage(named: "profileItem"),
+        selectedImage: nil)
+    
+    private let catalogueTabBarItem = UITabBarItem(
+        title: "Каталог",
+        image: UIImage(named: "catalogItem"),
+        selectedImage: nil)
+    
+    private let cartTabBarItem = UITabBarItem(
+        title: "Корзина",
+        image: UIImage(named: "cartItem"),
+        selectedImage: nil)
+    
+    private let statisticTabBarItem = UITabBarItem(
+        title: "Статистика",
+        image: UIImage(named: "statisticItem"),
+        selectedImage: nil)
     
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
@@ -14,44 +30,32 @@ final class TabBarController: UITabBarController {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not beenn implementad")
+        fatalError("init(coder:) has not been implemented")
     }
     
-    private func createTabBar() {
-        view.backgroundColor = .systemBackground
-        let catalogueVC = UINavigationController(rootViewController: CatalogueViewController())
-        catalogueVC.tabBarItem = UITabBarItem(
-            title: "Каталог",
-            image: UIImage(named: "Catalogue"),
-            selectedImage: UIImage(named: "CatalogueSelected")
-        )
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "YPWhite")
+        tabBar.backgroundColor = UIColor(named: "YPWhite")
+        tabBar.unselectedItemTintColor = UIColor(named: "YPBlack")
+        tabBar.tintColor = UIColor(named: "YPBlue")
+        addTabBarItems()
+    }
+    
+    private func addTabBarItems(){
         
-        let profileVC = UINavigationController(rootViewController: ProfileViewController())
-        profileVC.tabBarItem = UITabBarItem(
-            title: "Профиль",
-            image: UIImage(named: "Profile"),
-            selectedImage:  UIImage(named: "ProfileSelected")
-        )
+        let profileViewController = ProfileViewController(servicesAssembly: servicesAssembly)
+        profileViewController.tabBarItem = profileTabBarItem
         
-        let basketVC = UINavigationController(rootViewController: BasketViewController())
-        basketVC.tabBarItem = UITabBarItem(
-            title: "Корзина" ,
-            image: UIImage(named: "Basket"),
-            selectedImage: UIImage(named: "BasketSelected")
-        )
+        let catalogueViewController = CatalogueViewController(servicesAssembly: servicesAssembly)
+        catalogueViewController.tabBarItem = catalogueTabBarItem
         
-        let statisticVC = UINavigationController(rootViewController: StatisticViewController())
-        statisticVC.tabBarItem = UITabBarItem(
-            title: "Статистика",
-            image: UIImage(named: "Statistic"),
-            selectedImage: UIImage(named: "StatisticSelected")
-        )
+        let cartViewController = CartViewController(servicesAssembly: servicesAssembly)
+        cartViewController.tabBarItem = cartTabBarItem
         
-        viewControllers = [profileVC, catalogueVC, basketVC, statisticVC]
-        tabBar.tintColor = .systemBlue
-        tabBar.unselectedItemTintColor = .black
-        tabBar.shadowImage = UIImage()
-        tabBar.backgroundImage = UIImage()
-        tabBar.backgroundColor = .white
+        let statisticViewController = StatisticViewController(servicesAssembly: servicesAssembly)
+        statisticViewController.tabBarItem = statisticTabBarItem
+        
+        self.viewControllers = [profileViewController, catalogueViewController, cartViewController, statisticViewController]
     }
 }
