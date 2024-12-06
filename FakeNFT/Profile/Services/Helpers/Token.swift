@@ -8,5 +8,5 @@
 import Foundation
 
 final class Token {
-    static let token = "207797fa-d0b7-4f3a-85a9-775620ce5481"
+    static let token = "838f0366-1991-4b2c-bd1c-d136072f8080"
 }
