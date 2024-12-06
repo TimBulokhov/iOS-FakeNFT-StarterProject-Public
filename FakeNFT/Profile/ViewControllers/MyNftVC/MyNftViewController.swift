@@ -19,14 +19,12 @@ final class MyNftViewController: UIViewController {
         label.isHidden = true
         label.text = "Мои NFT"
         label.font = UIFont.bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var topViewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -34,10 +32,9 @@ final class MyNftViewController: UIViewController {
         let label = UILabel()
         label.textColor = UIColor(named: "YPBlack")
         label.isHidden = true
-        label.text = "У вас ещё нет NFT"
+        label.text = "У Вас ещё нет NFT"
         label.textAlignment = .center
         label.font = .bodyBold
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -48,7 +45,6 @@ final class MyNftViewController: UIViewController {
         button.isHidden = true
         button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(nftSortingButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -58,7 +54,6 @@ final class MyNftViewController: UIViewController {
         button.tintColor = UIColor(named: "YPBlack")
         button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(nftCloseButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -68,7 +63,6 @@ final class MyNftViewController: UIViewController {
         collection.delegate = self
         collection.backgroundColor = .clear
         collection.register(MyNftCollectionViewCell.self, forCellWithReuseIdentifier: nftCollectionViewCellIdentifier)
-        collection.translatesAutoresizingMaskIntoConstraints = false
         return collection
     }()
     
@@ -81,20 +75,19 @@ final class MyNftViewController: UIViewController {
         label.textAlignment = .center
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 16
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let warningLabelContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "YPWhite")
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let nftCollectionViewCellIdentifier = "nftCollectionCellIdentifier"
     
     private var nftResult: [NftModel] = []
+    var profile: Profile?
     private var nftIdArray: [String]
     private var favoriteNFTsId: [String]
     private let params = GeomitricParams(cellCount: 1, leftInset: 16, rightInset: 16, cellSpacing: 0)
@@ -126,7 +119,7 @@ final class MyNftViewController: UIViewController {
         if !nftIdArray.isEmpty {
             fetchNextNFT()
         }
-
+        
         
     }
     
@@ -143,6 +136,7 @@ final class MyNftViewController: UIViewController {
     private func setupUI() {
         
         [topViewsContainer, myNftTitleLabel, emptyNftLabel, nftSortingButton, nftCloseButton, nftCollectionView, warningLabel, warningLabelContainer].forEach{
+            $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         
@@ -187,7 +181,7 @@ final class MyNftViewController: UIViewController {
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             warningLabelContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             warningLabelContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-             
+            
         ])
     }
     
@@ -207,7 +201,7 @@ final class MyNftViewController: UIViewController {
             }
         }
     }
-
+    
 }
 
 // MARK: Extensions
@@ -222,25 +216,26 @@ extension MyNftViewController: UICollectionViewDataSource {
             myNftTitleLabel.isHidden = false
             nftSortingButton.isHidden = false
         }
-        return nftResult.count
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return nftResult.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nftCollectionViewCellIdentifier, for: indexPath) as? MyNftCollectionViewCell else {
             return UICollectionViewCell()
         }
-        if favoriteNFTsId.contains(nftResult[indexPath.section].id) {
+        let nft = nftResult[indexPath.row]
+        if favoriteNFTsId.contains(nftResult[indexPath.row].id) {
             cell.setLikeImageForLikeButton()
         } else {
             cell.removeLikeImageForLikeButton()
         }
         cell.delegate = self
-        cell.nft = nftResult[indexPath.section]
-        cell.awakeFromNib()
+        cell.configure(with: nft)
+        cell.setupCell()
         return cell
     }
 }
@@ -261,26 +256,26 @@ extension MyNftViewController: UICollectionViewDelegateFlowLayout {
 extension MyNftViewController: NFTFactoryDelegate {
     
     func didUpdateFavoriteNFT(_ favoriteNFTs: LikedNftModel) {
-        
         delegate?.didUpdateFavoriteNFT(favoriteNFTs.likes)
-
         if favoriteNFTs.likes.count > favoriteNFTsId.count {
             if let appendedNFT = favoriteNFTs.likes.first(where:{ !favoriteNFTsId.contains($0)}),
                let cellSection = nftResult.firstIndex(where: { $0.id == appendedNFT }) {
-                favoriteNFTsId = favoriteNFTs.likes
-                nftCollectionView.performBatchUpdates {
-                    nftCollectionView.reloadSections([cellSection])
-                }
+                getCellByIndex(index: cellSection)?.setLikeImageForLikeButton()
             }
         } else {
             if let removedNFT = favoriteNFTsId.first(where: { !favoriteNFTs.likes.contains($0) }),
                let cellSection = nftResult.firstIndex(where: { $0.id == removedNFT }) {
-                favoriteNFTsId = favoriteNFTs.likes
-                nftCollectionView.performBatchUpdates {
-                    nftCollectionView.reloadSections([cellSection])
-                }
+                getCellByIndex(index: cellSection)?.removeLikeImageForLikeButton()
             }
         }
+        favoriteNFTsId = favoriteNFTs.likes
+        nftCollectionView.reloadData()
+    }
+    
+    func getCellByIndex(index: Int) -> MyNftCollectionViewCell? {
+        let indexPath = IndexPath(row: 0, section: index)
+        let cell = nftCollectionView.cellForItem(at: indexPath)
+        return cell as? MyNftCollectionViewCell
     }
     
     func didFailToUpdateFavoriteNFT(with error: ProfileServiceError) {
@@ -349,13 +344,13 @@ extension MyNftViewController: FetchNFTAlertDelegate {
     }
 }
 
-// добавление в избранное черновик
 extension MyNftViewController: CollectionViewCellDelegate {
-    func cellLikeButtonTapped(_ cell: MyNftCollectionViewCell) {
+    
+    func cellLikeButtonTapped(_ cell: UICollectionViewCell) {
         guard let indexPath = nftCollectionView.indexPath(for: cell) else {
             return
         }
-        let likedNftId = nftResult[indexPath.section].id
+        let likedNftId = nftResult[indexPath.row].id
         var newNFTArray: [String] = []
         if let nftId = favoriteNFTsId.first(where: { $0 == likedNftId }) {
             newNFTArray = favoriteNFTsId.filter({ $0 != nftId })
@@ -371,33 +366,33 @@ extension MyNftViewController: SortAlertDelegate {
     func sortByPrice() {
         nftResult.sort(by: { $0.price < $1.price })
         nftCollectionView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: index, section: 0))
             }
-            nftCollectionView.reloadItems(at: indesPaths)
+            nftCollectionView.reloadItems(at: indexPaths)
         }
     }
     
     func sortByRate() {
         nftResult.sort(by: { $0.rating > $1.rating })
         nftCollectionView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: index, section: 0))
             }
-            nftCollectionView.reloadItems(at: indesPaths)
+            nftCollectionView.reloadItems(at: indexPaths)
         }
     }
     
     func sortByName() {
         nftResult.sort(by: { $0.name < $1.name })
         nftCollectionView.performBatchUpdates {
-            var indesPaths: [IndexPath] = []
+            var indexPaths: [IndexPath] = []
             for index in 0..<nftResult.count {
-                indesPaths.append(IndexPath(item: 0, section: index))
+                indexPaths.append(IndexPath(item: index, section: 0))
             }
-            nftCollectionView.reloadItems(at: indesPaths)
+            nftCollectionView.reloadItems(at: indexPaths)
         }
     }
 }

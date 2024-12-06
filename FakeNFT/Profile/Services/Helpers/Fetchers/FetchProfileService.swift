@@ -23,7 +23,7 @@ final class FetchProfileService {
         }
         
         guard let request = makeRequstBody(token: token) else {
-            completion(.failure(ProfileServiceError.codeError("Uknown Error")))
+            completion(.failure(ProfileServiceError.codeError("Unknown Error")))
             return
         }
         

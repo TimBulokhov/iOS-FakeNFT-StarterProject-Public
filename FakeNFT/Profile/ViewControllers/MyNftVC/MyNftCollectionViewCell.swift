@@ -11,23 +11,21 @@ import Kingfisher
 final class MyNftCollectionViewCell: UICollectionViewCell {
     
     weak var delegate: CollectionViewCellDelegate?
+    private var nft: NftModel?
+    private var profile: Profile?
     
     private lazy var viewsContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
-        view.addSubview(nftImageView)
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
-        if let nftImageLink = nft?.images.first {
-            imageView.kf.setImage(with: URL(string: nftImageLink), placeholder: UIImage(systemName: "photo"))
-        }
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 12
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .gray
         return imageView
     }()
     
@@ -36,11 +34,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         label.textColor = UIColor(named: "YPBlack")
         label.textAlignment = .left
         label.font = .bodyBold
-        nftAuthorLabel.font = .caption2
-        if let nftName = nft?.name {
-            label.text = nftName.cutString(at: " ")
-        }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -48,10 +41,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = UIColor(named: "YPBlack")
         label.font = .caption2
-        if let author = nft?.author {
-            label.text = "От \(author)"
-        }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -61,13 +50,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 2
         label.font = .caption2
-        if let price = nft?.price {
-            let priceString = "\(price) ETH"
-            let attributedString = NSMutableAttributedString(string: "Цена" + "\n" + "\(priceString)")
-            attributedString.setFont(.bodyBold, forText: "\(priceString)")
-            label.attributedText = attributedString
-        }
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -75,8 +57,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let button = UIButton()
         button.addTarget(self, action: #selector(didTapNftLikeButton), for: .touchUpInside)
         button.layer.masksToBounds = true
-        button.layer.cornerRadius = nftLikeButton.frame.height / 2
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = button.frame.height / 2
         return button
     }()
     
@@ -84,12 +65,8 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
         let ratingView = MyNftRatingImageView(frame: frame)
         ratingView.backgroundColor = .clear
-        ratingView.updateRatingImagesBy(nft?.rating ?? 0)
-        ratingView.translatesAutoresizingMaskIntoConstraints = false
         return ratingView
     }()
-    
-    var nft: NftModel?
     
     // MARK: Init
     
@@ -103,11 +80,6 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         nftImageView.kf.cancelDownloadTask()
     }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setupUI()
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -118,13 +90,39 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
         delegate?.cellLikeButtonTapped(self)
     }
     
+    func setupCell() {
+        setupUI()
+    }
+    
+    func configure(with nft: NftModel) {
+        self.nft = nft
+        
+        if let nftImageLink = nft.images.first {
+            nftImageView.kf.setImage(with: URL(string: nftImageLink), placeholder: UIImage(systemName: "photo"))
+        } else {
+            print("Нет доступных изображений для NFT: \(nft.name)")
+            self.nftImageView.image = nil
+        }
+        nftNameLabel.text = nft.name
+        ratingImageView.updateRatingImagesBy(nft.rating)
+        nftAuthorLabel.text = "От \(nft.author)"
+        let priceString = "\(nft.price) ETH"
+        let attributedString = NSMutableAttributedString(string: "Цена" + "\n" + "\(priceString)")
+        attributedString.setFont(.bodyBold, forText: "\(priceString)")
+        nftPriceLabel.attributedText = attributedString
+    }
+    
     private func setupUI(){
-
-        contentView.addSubview(nftLikeButton)
-        viewsContainer.addSubview(ratingImageView)
-        viewsContainer.addSubview(nftNameLabel)
-        viewsContainer.addSubview(nftAuthorLabel)
-        viewsContainer.addSubview(nftPriceLabel)
+        
+        [viewsContainer, nftLikeButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview($0)
+        }
+        
+        [nftImageView, ratingImageView, nftNameLabel, nftAuthorLabel, nftPriceLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            viewsContainer.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             viewsContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -156,10 +154,10 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
             ratingImageView.centerYAnchor.constraint(equalTo: viewsContainer.centerYAnchor),
             ratingImageView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
             
-            nftPriceLabel.topAnchor.constraint(equalTo: viewsContainer.topAnchor, constant: 33),
+            nftPriceLabel.topAnchor.constraint(equalTo: viewsContainer.topAnchor, constant: 43),
             nftPriceLabel.bottomAnchor.constraint(equalTo: viewsContainer.bottomAnchor, constant: -33),
             nftPriceLabel.trailingAnchor.constraint(equalTo: viewsContainer.trailingAnchor),
-            nftPriceLabel.leadingAnchor.constraint(lessThanOrEqualTo: nftImageView.trailingAnchor, constant: 137)
+            nftPriceLabel.leadingAnchor.constraint(lessThanOrEqualTo: nftImageView.trailingAnchor, constant: 157)
         ])
     }
     
@@ -170,29 +168,7 @@ final class MyNftCollectionViewCell: UICollectionViewCell {
     func removeLikeImageForLikeButton() {
         nftLikeButton.setImage(UIImage(named: "whiteHeart"), for: .normal)
     }
-
-}
-
-// MARK: Extensions
-
-extension NSMutableAttributedString {
     
-    func setFont(_ font: UIFont, forText text: String) {
-        let range = self.mutableString.range(of: text, options: .caseInsensitive)
-        self.addAttribute(NSAttributedString.Key.font, value: font, range: range)
-    }
 }
 
-extension String {
-    func cutString(at character: Character) -> String {
-        var newString = ""
-        for char in self {
-            if char != character {
-                newString.append(char)
-            } else {
-                break
-            }
-        }
-        return newString
-    }
-}
+
