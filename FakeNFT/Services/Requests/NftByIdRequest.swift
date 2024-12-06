@@ -8,3 +8,4 @@ struct NFTRequest: NetworkRequest {
         URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id)")
     }
 }
+
