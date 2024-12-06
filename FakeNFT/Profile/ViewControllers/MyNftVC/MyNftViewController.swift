@@ -119,7 +119,7 @@ final class MyNftViewController: UIViewController {
         if !nftIdArray.isEmpty {
             fetchNextNFT()
         }
-
+        
         
     }
     
@@ -181,7 +181,7 @@ final class MyNftViewController: UIViewController {
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             warningLabelContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             warningLabelContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-             
+            
         ])
     }
     
@@ -201,7 +201,7 @@ final class MyNftViewController: UIViewController {
             }
         }
     }
-
+    
 }
 
 // MARK: Extensions
@@ -256,28 +256,26 @@ extension MyNftViewController: UICollectionViewDelegateFlowLayout {
 extension MyNftViewController: NFTFactoryDelegate {
     
     func didUpdateFavoriteNFT(_ favoriteNFTs: LikedNftModel) {
-        
         delegate?.didUpdateFavoriteNFT(favoriteNFTs.likes)
-
         if favoriteNFTs.likes.count > favoriteNFTsId.count {
             if let appendedNFT = favoriteNFTs.likes.first(where:{ !favoriteNFTsId.contains($0)}),
                let cellSection = nftResult.firstIndex(where: { $0.id == appendedNFT }) {
-                favoriteNFTsId = favoriteNFTs.likes
-                let indexPath = IndexPath(row: 0, section: cellSection)
-                let cell = nftCollectionView.cellForItem(at: indexPath)
-                let likedcell = cell as? MyNftCollectionViewCell
-                likedcell?.setLikeImageForLikeButton()
+                getCellByIndex(index: cellSection)?.setLikeImageForLikeButton()
             }
         } else {
             if let removedNFT = favoriteNFTsId.first(where: { !favoriteNFTs.likes.contains($0) }),
                let cellSection = nftResult.firstIndex(where: { $0.id == removedNFT }) {
-                favoriteNFTsId = favoriteNFTs.likes
-                let indexPath = IndexPath(row: 0, section: cellSection)
-                let cell = nftCollectionView.cellForItem(at: indexPath)
-                let likedcell = cell as? MyNftCollectionViewCell
-                likedcell?.removeLikeImageForLikeButton()
+                getCellByIndex(index: cellSection)?.removeLikeImageForLikeButton()
             }
         }
+        favoriteNFTsId = favoriteNFTs.likes
+        nftCollectionView.reloadData()
+    }
+    
+    func getCellByIndex(index: Int) -> MyNftCollectionViewCell? {
+        let indexPath = IndexPath(row: 0, section: index)
+        let cell = nftCollectionView.cellForItem(at: indexPath)
+        return cell as? MyNftCollectionViewCell
     }
     
     func didFailToUpdateFavoriteNFT(with error: ProfileServiceError) {
