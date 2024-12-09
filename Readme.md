@@ -1,5 +1,5 @@
 # Скринкаст проекта
-https://youtu.be/DqgCbbqxUrY
+[Epic Profile](https://drive.google.com/file/d/15lSo4eOYvXu79ht6FVwPE8GN2EvMlPGl/view?usp=sharing)
 
 
 # ТЗ мобильного приложения FakeNFT
