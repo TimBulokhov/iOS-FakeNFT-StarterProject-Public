@@ -21,7 +21,7 @@ final class TestCatalogViewController: UIViewController {
 
         view.addSubview(testNftButton)
         testNftButton.constraintCenters(to: view)
-        testNftButton.setTitle(Constants.openNftTitle, for: .normal)
+        testNftButton.setTitle(Constants.openNftsTitle, for: .normal)
         testNftButton.addTarget(self, action: #selector(showNft), for: .touchUpInside)
         testNftButton.setTitleColor(.systemBlue, for: .normal)
     }
@@ -36,6 +36,6 @@ final class TestCatalogViewController: UIViewController {
 }
 
 private enum Constants {
-    static let openNftTitle = NSLocalizedString("Catalog.openNft", comment: "")
+    static let openNftsTitle = NSLocalizedString("Catalog.openNft", comment: "")
     static let testNftId = "7773e33c-ec15-4230-a102-92426a3a6d5a"
 }

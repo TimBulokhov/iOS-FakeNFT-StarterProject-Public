@@ -324,8 +324,8 @@ final class ProfileEditViewController: UIViewController {
             
             profileCloseButton.widthAnchor.constraint(equalToConstant: 42),
             profileCloseButton.heightAnchor.constraint(equalToConstant: 42),
-            profileCloseButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -780),
-            profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            profileCloseButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -755),
+            profileCloseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
             
             warningLabelContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             warningLabelContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
